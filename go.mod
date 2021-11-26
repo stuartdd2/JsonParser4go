@@ -1,4 +1,4 @@
-module github.com/stuartdd/jsonParserGo
+module github.com/stuartdd2/JsonParser4go
 
 go 1.17
 
