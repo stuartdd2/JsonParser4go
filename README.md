@@ -1,4 +1,4 @@
-# jsonParserGo
+# jsonParser4Go
 
 Json parser written in GO (Why not!)
 
