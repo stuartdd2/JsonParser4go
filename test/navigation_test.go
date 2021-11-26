@@ -1,0 +1,203 @@
+package test
+
+import (
+	"github.com/stuartdd/jsonParserGo/parser"
+	"strings"
+	"testing"
+)
+
+func TestWalkNodesUntillFound(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	target, _ := parser.Find(root, parser.NewPath("address|streetAddress", "|"))
+	node, parent, ok := parser.WalkNodeTree(root, target, func(node, parent, target parser.NodeI) bool {
+		return node.GetName() == target.GetName()
+	})
+	if !ok {
+		t.Errorf("Did not find target in the map")
+	} else {
+		if parent.GetName() != "address" {
+			t.Errorf("Parent node should hve name 'address'. Actual:%s", parent.GetName())
+		}
+		if node.GetName() != "streetAddress" {
+			t.Errorf("Parent node should hve name 'streetAddress'. Actual:%s", node.GetName())
+		}
+	}
+}
+
+func TestWalkAllNodes(t *testing.T) {
+	m := make(map[string]string)
+	root := InitParser(t, "", obj3)
+	target, _ := parser.Find(root, parser.NewPath("address|phoneNumbers", "|"))
+	parser.WalkNodeTree(root, target, func(node, parent, target parser.NodeI) bool {
+		m[node.GetName()] = node.JsonValue()
+		return false
+	})
+	var sb strings.Builder
+
+	testStr := "no address city state business phoneNumbers string number boolean dupe1 dupe1 no streetAddress firstName lastName gender age bo"
+	testList := strings.Split(testStr, " ")
+	for _, v := range testList {
+		_, ok := m[v]
+		if !ok {
+			t.Errorf("Did not find '%s' in the map", v)
+		}
+		sb.WriteString(v)
+		sb.WriteString(" ")
+	}
+	if strings.Trim(sb.String(), " ") != testStr {
+		t.Errorf("Strings should be the same \ntestStr:'%s'\nactual :'%s'", testStr, sb.String())
+	}
+}
+func TestFindNodeInList(t *testing.T) {
+	root := InitParser(t, "", nList2)
+	target, _ := parser.Find(root, parser.NewPath("4.f", "."))
+
+	p1, ok := parser.FindParentNode(root, target)
+	CheckNodeParentTarget(t, p1, target, ok, "f", true, "")
+
+	p2, ok := parser.FindParentNode(root, p1)
+	CheckNodeParentTarget(t, p2, p1, ok, "", true, "")
+
+	p3, ok := parser.FindParentNode(root, p2)
+	CheckNodeParentTarget(t, p3, p2, ok, "", false, "")
+
+}
+
+func TestFindNodeInListComplex(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	target, _ := parser.Find(root, parser.NewBarPath("address|phoneNumbers|number"))
+	p1, ok := parser.FindParentNode(root, target)
+	CheckNodeParentTarget(t, p1, target, ok, "number", true, "phoneNumbers")
+
+	target, _ = parser.Find(root, parser.NewDotPath("address.phoneNumbers.no"))
+	p1, ok = parser.FindParentNode(root, target)
+	CheckNodeParentTarget(t, p1, target, ok, "no", true, "phoneNumbers")
+
+}
+
+func TestFindNodeInObjects(t *testing.T) {
+	root := InitParser(t, "", obj2)
+	target, _ := parser.Find(root, parser.NewPath("address.state", "."))
+	as1 := target.String()
+
+	p, ok := parser.FindParentNode(root, target)
+	CheckNodeParentTarget(t, p, target, ok, "state", true, "address")
+	target, _ = parser.Find(root, parser.NewPath("address|phoneNumbers|0|number", "|"))
+	p, ok = parser.FindParentNode(root, target)
+	CheckNodeParentTarget(t, p, target, ok, "number", true, "")
+	target, _ = parser.Find(root, parser.NewPath("address.phoneNumbers", "."))
+	p, ok = parser.FindParentNode(root, target)
+	CheckNodeParentTarget(t, p, target, ok, "phoneNumbers", true, "address")
+	target, _ = parser.Find(root, parser.NewPath("age", "."))
+	p, ok = parser.FindParentNode(root, target)
+	CheckNodeParentTarget(t, p, target, ok, "age", true, "")
+	p, ok = parser.FindParentNode(root, root)
+	CheckNodeParentTarget(t, p, root, ok, "", false, "")
+
+	target = parser.NewJsonString("state", "CA")
+	as2 := target.String()
+
+	if as2 != as1 {
+		t.Errorf("Node address.state and external node address.sate string should be the same '%s' != '%s", as1, as2)
+	}
+	p, ok = parser.FindParentNode(root, target)
+	if ok {
+		t.Errorf("Just because the String() returns the same doesent make then the same!")
+	}
+	if p != nil {
+		t.Errorf("returned parent node should be nil")
+	}
+}
+
+func CheckNodeParentTarget(t *testing.T, parent, target parser.NodeI, found bool, expected string, shouldHaveParent bool, parentStr string) {
+	if shouldHaveParent {
+		if !found {
+			t.Errorf("returned node was not found. Expected '%s'", expected)
+		}
+		if parent == nil {
+			t.Errorf("Returned parent is nil, Expected: '%s'", parentStr)
+		}
+		if parent.GetName() != parentStr {
+			t.Errorf("Returned parent incorrect name '%s', Expected: '%s'", parent.GetName(), parentStr)
+		}
+		if target.GetName() != expected {
+			t.Errorf("Returned target incorrect name '%s', Expected: '%s'", target.GetName(), expected)
+		}
+	} else {
+		if parent != nil {
+			t.Errorf("Returned parent should be nil")
+		}
+	}
+}
+
+func TestFindInList1(t *testing.T) {
+	node := InitParser(t, "", nList1)
+	CheckFindNode(t, node, "obj", "literal")
+	CheckFindNode(t, node, "num", "99.9")
+}
+
+func TestFindInMap2(t *testing.T) {
+	node := InitParser(t, "", obj2)
+	CheckFindNode(t, node, "address.phoneNumbers.0.type", "home")
+	CheckFindNode(t, node, "address.phoneNumbers.0.number", "7349282382")
+	CheckFindNode(t, node, "address.phoneNumbers.0", "7349282382")
+	CheckFindNode(t, node, "firstName", "Joe")
+	CheckFindNode(t, node, "age", "28")
+	CheckFindNode(t, node, "address.state", "CA")
+}
+
+func TestFindInMap1(t *testing.T) {
+	node := InitParser(t, "", obj1)
+	CheckFindNode(t, node, "lastName", "Jackson")
+}
+
+func TestFindNotInMap(t *testing.T) {
+	node := InitParser(t, "", obj1)
+	_, err := parser.Find(node, parser.NewDotPath("5"))
+	if err == nil {
+		t.Errorf("Find test failed. Should have thrown err")
+	}
+	CheckErr(t, err, "was not found")
+}
+
+func TestFindFirstEle(t *testing.T) {
+	node := InitParser(t, "", nList1)
+	CheckFindNode(t, node, "0", "literal")
+	CheckFindNode(t, node, "4", "false")
+}
+
+func TestFindNodeHighIndexInList(t *testing.T) {
+	node := InitParser(t, "", nList1)
+	_, err := parser.Find(node, parser.NewDotPath("5"))
+	if err == nil {
+		t.Errorf("Find test failed. Should have thrown err")
+	}
+	CheckErr(t, err, "Index out of bounds")
+}
+
+func TestFindNodeNegativeIndexInList(t *testing.T) {
+	node := InitParser(t, "", nList1)
+	_, err := parser.Find(node, parser.NewDotPath("-1"))
+	if err == nil {
+		t.Errorf("Find test failed. Should have thrown err")
+	}
+	CheckErr(t, err, "Index out of bounds")
+}
+
+func TestFindNodeInvalidIndexInList(t *testing.T) {
+	node := InitParser(t, "", nList1)
+	_, err := parser.Find(node, parser.NewDotPath("x"))
+	if err == nil {
+		t.Errorf("Find test failed. Should have thrown err")
+	}
+	CheckErr(t, err, "element: 'x' was not found")
+}
+
+func TestFindNodeEmptySearch(t *testing.T) {
+	node := InitParser(t, "", nList1)
+	_, err := parser.Find(node, parser.NewPath("", ""))
+	if err == nil {
+		t.Errorf("Find test failed. Should have thrown err")
+	}
+	CheckErr(t, err, "No search paths")
+}
