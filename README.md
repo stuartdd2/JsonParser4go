@@ -8,7 +8,7 @@ Each node has a specific type. It can be (cast) to a specific type and read/upda
 
 All objects returned from the API are pointer objects. This enables you to update the node in place and prevents copy on call which can consume more memory.
 
-All String() methods return the value of the node as a String. For example for JsonNumber it returns the number as a String. For JsonBool it will return "true" of "false". 
+All String() methods return the value of the node as a String. For example for JsonNumber it returns the number as a String. For JsonBool it will return "true" of "false".
 
 ```
  \* Copyright (C) 2021 Stuart Davies (stuartdd)
@@ -40,32 +40,32 @@ All String() methods return the value of the node as a String. For example for J
 From within the project (where your go.mod) file is.
 
 ```bash
-go get github.com/stuartdd/jsonParserGo/parser
+go get github.com/stuartdd2/JsonParser4go/parser
 ```
 
 You should see somthing like:
 
 ```bash
-go get: added github.com/stuartdd/jsonParserGo/parser v0.0.0-20210923131243-6710c9cdd57d
+go get: added github.com/stuartdd2/JsonParser4go/parser v0.0.0-20210923131243-6710c9cdd57d
 ```
 
 The go.mod file for you project should now have the parser in the require section. For example:
 
 ```
 require (
-	github.com/stuartdd/jsonParserGo/parser v0.0.0-20210923131243-6710c9cdd57d // indirect
+	github.com/stuartdd2/JsonParser4go/parser v0.0.0-20210923131243-6710c9cdd57d // indirect
 )
 ```
 
 To remove it:
 
 ```
-go get github.com/stuartdd/jsonParserGo/parser@none
+go get github.com/stuartdd2/JsonParser4go/parser@none
 ```
 
 ## Parsing
 
-The parse method takes a []byte as text.  
+The parse method takes a []byte as text.
 
 Returns a node and an error. If error is not nil then node will be nil
 
@@ -111,7 +111,7 @@ if err != nil {
 
 ## Node types
 
-All nodes implement the NodeI (capital i) interface. 
+All nodes implement the NodeI (capital i) interface.
 
 | Data Type | Struct Name | Contains                             | Example                              |
 | --------- | ----------- | ------------------------------------ | ------------------------------------ |
@@ -122,11 +122,11 @@ All nodes implement the NodeI (capital i) interface.
 | Objects   | JsonObjects | A named list of any other data types |                                      |
 | Null      | JsonNull    | null                                 | "thisIs":null                        |
 
-All container nodes implement the NodeC interface. There are two container nodes, JsonObject and JsonList. 
+All container nodes implement the NodeC interface. There are two container nodes, JsonObject and JsonList.
 
 ### Node Type and Enums
 
-To detirmine a nodes type use the `node.GetNodeType()` function to return the NodeType enum. 
+To detirmine a nodes type use the `node.GetNodeType()` function to return the NodeType enum.
 
 | Enum Name | Struct (Node type) | Construct                                             |
 | --------- | ------------------ | ----------------------------------------------------- |
@@ -153,7 +153,7 @@ List nodes can contain literals or objects and implement the NodeC interface. Fo
 
 ```["literal", 123.4, true, {"num":99.9}, {"t":true}]```
 
-The first 3 nodes are Literal nodes, a JsonString, JsonNumber and a JsonBool. They are rendered as literals because they do not have a name (name == ""). 
+The first 3 nodes are Literal nodes, a JsonString, JsonNumber and a JsonBool. They are rendered as literals because they do not have a name (name == "").
 
 The other nodes are Object nodes (they all have names).
 
@@ -206,11 +206,11 @@ Example: Accessing nodes and their specific data access functions
 	case parser.NT_NUMBER:
         numberNode := (node.(*parser.JsonNumber)) // Cast a node to a JsonNumber
         floafValue := numberNode.GetValue() // Now we can access the specific functions
-        intValue := numberNode.GetIntValue() 
+        intValue := numberNode.GetIntValue()
 	case parser.NT_STRING:
         stringValue := (node.(*parser.JsonString)).GetValue() // Get the string value
 	case parser.NT_BOOL:
-        boolValue := (node.(*parser.JsonBool)).GetValue() // Get the boolean value 
+        boolValue := (node.(*parser.JsonBool)).GetValue() // Get the boolean value
     }
 ```
 
@@ -220,24 +220,24 @@ Also the **IsContainer()** function will return true if the node is a JsonList o
 
 All Node Types have the 'NodeI' interface. This interface defines the following functions:
 
-| function signature            | Desc                                                         |
-| ----------------------------- | ------------------------------------------------------------ |
-| String() string               | The Stringer interface. Returns the string representation of the value of the node. For example for JsonNumber it returns the number as a String. For JsonBool it will return "true" of "false".  For JsonList and JsonObject this will return the same as JsonValue() below |
+| function signature            | Desc                                                                                                                                                                                                                                                                                    |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| String() string               | The Stringer interface. Returns the string representation of the value of the node. For example for JsonNumber it returns the number as a String. For JsonBool it will return "true" of "false".  For JsonList and JsonObject this will return the same as JsonValue() below            |
 | JsonValue() string            | Returns the node as compact JSON. For example the address node in the JSON example below will return `"address": {"business": true,"phoneNumbers": [{"type": "home"},{"number": "7349282382"},{"current": true,"loc": "UK"}],"streetAddress": "101","city": "San Diego","state": "CA"}` |
-| JsonValueIndented(int) string | Returns the node as indented (formatted) JSON. An example is included below: |
-| GetNodeType() NodeType        | Returns an ENUM of the node type, of type NodeType (see below) |
-| GetName() string              | Returns the name of the node or "" if the node has no name   |
-| IsContainer() bool            | Returns true if the node implements the NodeC interface. This is defined by the nodes node type (GetNodeType()). It must be NT_OBJECT or NT_LIST. |
+| JsonValueIndented(int) string | Returns the node as indented (formatted) JSON. An example is included below:                                                                                                                                                                                                            |
+| GetNodeType() NodeType        | Returns an ENUM of the node type, of type NodeType (see below)                                                                                                                                                                                                                          |
+| GetName() string              | Returns the name of the node or "" if the node has no name                                                                                                                                                                                                                              |
+| IsContainer() bool            | Returns true if the node implements the NodeC interface. This is defined by the nodes node type (GetNodeType()). It must be NT_OBJECT or NT_LIST.                                                                                                                                       |
 
 ### Container Functions (NodeC interface)
 
-| function signature                 | Desc                                                         |
-| ---------------------------------- | ------------------------------------------------------------ |
-| GetValues() []NodeI                | Return a list of ALL nodes in the container                  |
-| Len() int                          | Returns the number of nodes in the container                 |
-| Add(node NodeI) error              | Adds a node to a container                                   |
+| function signature                 | Desc                                                                                                                                                      |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GetValues() []NodeI                | Return a list of ALL nodes in the container                                                                                                               |
+| Len() int                          | Returns the number of nodes in the container                                                                                                              |
+| Add(node NodeI) error              | Adds a node to a container                                                                                                                                |
 | GetNodeWithName(name string) NodeI | Returns a node with a given name in the container. Note that lists can contain nodes that do not have names. These cannot be returned from this function. |
-| Remove(nodeRemove NodeI) error     | Remove the node from the container node                      |
+| Remove(nodeRemove NodeI) error     | Remove the node from the container node                                                                                                                   |
 
 #### Example output indented by 4 spaces: ```JsonValueIndented(4) ```
 
@@ -268,36 +268,36 @@ All Node Types have the 'NodeI' interface. This interface defines the following 
 
 These functions are based on the Node Type
 
-| Node Type  | Func                                                  | Desc                                                         |
-| ---------- | ----------------------------------------------------- | ------------------------------------------------------------ |
-| JsonString | NewJsonString(name string, value string) *JsonString  | Constructor. Creates a JsonString node with a name and a value. Returns a pointer to the node. |
-|            | GetValue() string                                     | Returns the 'string' value on the node                       |
-|            | SetValue(newValue string)                             | Updates the string value                                     |
-| JsonNumber | NewJsonNumber(name string, value float64) *JsonNumber | Constructor. Creates a JsonNumber node with a name and a value. Returns a pointer to the node. |
-|            | SetValue(newValue float64)                            | Sets the value of the nodes float64.                         |
-|            | SetIntValue(newValue int64)                           | Sets the value using an int64. Note internally the JsonNumber object stores a float64. The String() function will render '123.000000' as '123' and '123.100000' as '123.1' removing redundant '0' and '.' characters. |
-|            | GetValue() float64                                    | Returns the value as a float64                               |
-|            | GetIntValue() int64                                   | Returns the value as an int. floating point values will be truncated. |
-| JsonBool   | NewJsonBool(name string, value bool) *JsonBool        | Constructor. Creates a JsonBool node with a name and a value. Returns a pointer to the node. |
-|            | GetValue() bool                                       | Returns true or false                                        |
-|            | SetValue(newValue bool)                               | Sets the value to true or false                              |
-| JsonNull   | NewJsonNull(name string) *JsonNull                    | Constructor. Creates a JsonNull node with a name. The value is always 'null'. Returns a pointer to the node. |
-|            | Does not have any additional functions                | Renders as "name":null                                       |
-| JsonList   | NewJsonList(name string) *JsonList                    | Constructor. Creates a JsonList node with a name. The value is always an empty list. Returns a pointer to the node. |
-|            | GetNodeAt(i int) NodeI                                | Returns the node a index i in the list.                      |
+| Node Type  | Func                                                  | Desc                                                                                                                                                                                                                                                                                                                                         |
+| ---------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JsonString | NewJsonString(name string, value string) *JsonString  | Constructor. Creates a JsonString node with a name and a value. Returns a pointer to the node.                                                                                                                                                                                                                                               |
+|            | GetValue() string                                     | Returns the 'string' value on the node                                                                                                                                                                                                                                                                                                       |
+|            | SetValue(newValue string)                             | Updates the string value                                                                                                                                                                                                                                                                                                                     |
+| JsonNumber | NewJsonNumber(name string, value float64) *JsonNumber | Constructor. Creates a JsonNumber node with a name and a value. Returns a pointer to the node.                                                                                                                                                                                                                                               |
+|            | SetValue(newValue float64)                            | Sets the value of the nodes float64.                                                                                                                                                                                                                                                                                                         |
+|            | SetIntValue(newValue int64)                           | Sets the value using an int64. Note internally the JsonNumber object stores a float64. The String() function will render '123.000000' as '123' and '123.100000' as '123.1' removing redundant '0' and '.' characters.                                                                                                                        |
+|            | GetValue() float64                                    | Returns the value as a float64                                                                                                                                                                                                                                                                                                               |
+|            | GetIntValue() int64                                   | Returns the value as an int. floating point values will be truncated.                                                                                                                                                                                                                                                                        |
+| JsonBool   | NewJsonBool(name string, value bool) *JsonBool        | Constructor. Creates a JsonBool node with a name and a value. Returns a pointer to the node.                                                                                                                                                                                                                                                 |
+|            | GetValue() bool                                       | Returns true or false                                                                                                                                                                                                                                                                                                                        |
+|            | SetValue(newValue bool)                               | Sets the value to true or false                                                                                                                                                                                                                                                                                                              |
+| JsonNull   | NewJsonNull(name string) *JsonNull                    | Constructor. Creates a JsonNull node with a name. The value is always 'null'. Returns a pointer to the node.                                                                                                                                                                                                                                 |
+|            | Does not have any additional functions                | Renders as "name":null                                                                                                                                                                                                                                                                                                                       |
+| JsonList   | NewJsonList(name string) *JsonList                    | Constructor. Creates a JsonList node with a name. The value is always an empty list. Returns a pointer to the node.                                                                                                                                                                                                                          |
+|            | GetNodeAt(i int) NodeI                                | Returns the node a index i in the list.                                                                                                                                                                                                                                                                                                      |
 |            | GetNodeWithName(name string) (NodeI, error)           | Returns the node with the name. If the node you are looking for does not have a name then this will return a error. <br/>Lists can contain nodes without names. These cannot be returned via this function, use GetNodeAt(n) instead. <br/>The order of nodes in a list is constant once they have been added, unlike nodes in a JsonObject. |
-|            | Add(node NodeI)                                       | Adds a node. If the node to be added has a name a wrapper (parent) object (jsonObject) without a name is created and added to the list. If the node to be added does not have a name (a literal) then it is simply added to the list |
-|            | GetValues() []NodeI                                   | Returns a list of ALL the values. Altering this list (add, remove) has NO effect on the underlying JsonList. |
-|            | Remove(nodeRemove NodeI) error                        | Removes a given node from the JsonList. This does not use the node name. You need to Find the node first. If the node in NOT in the map an error is returned. |
-|            | Len()                                                 | Returns the combined number of literal objects and wrapper objects in the list. |
-| JsonObject | NewJsonObject(name string) *JsonObject                | Constructor. Creates a JsonObject node with a name. The value is always an empty map. Returns a pointer to the node. |
-|            | GetNodeWithName(name string) NodeI                    | Returns the node with the given name. Internally a map[string]\*NodeI contains all of the nodes. This simple returns the value. If the value is not found a nil is returned. |
-|            | GetSortedKeys() []string                              | Returns a list of keys from the map sorted a to z by name. Altering this list has NO effect on the underlying JsonObject. |
-|            | GetValuesSorted() []NodeI                             | Returns a list of all the values in the map sorted a to z by name.  Altering this list (add, remove) has NO effect on the underlying JsonObject. |
-|            | GetValues() []NodeI                                   | Returns a list of all the values in the map. Altering this list (add, remove) has NO effect on the underlying JsonObject. |
-|            | Add(node NodeI)                                       | Adds the node to the map. It uses the node name as the map key. |
-|            | Remove(nodeRemove NodeI) error                        | Removes a given node from the JsonObject. This does not use the node name. You need to Find the node first. If the node in NOT in the map an error is returned. |
-|            | Len()                                                 | Returns the combined number of objects in the list.          |
+|            | Add(node NodeI)                                       | Adds a node. If the node to be added has a name a wrapper (parent) object (jsonObject) without a name is created and added to the list. If the node to be added does not have a name (a literal) then it is simply added to the list                                                                                                         |
+|            | GetValues() []NodeI                                   | Returns a list of ALL the values. Altering this list (add, remove) has NO effect on the underlying JsonList.                                                                                                                                                                                                                                 |
+|            | Remove(nodeRemove NodeI) error                        | Removes a given node from the JsonList. This does not use the node name. You need to Find the node first. If the node in NOT in the map an error is returned.                                                                                                                                                                                |
+|            | Len()                                                 | Returns the combined number of literal objects and wrapper objects in the list.                                                                                                                                                                                                                                                              |
+| JsonObject | NewJsonObject(name string) *JsonObject                | Constructor. Creates a JsonObject node with a name. The value is always an empty map. Returns a pointer to the node.                                                                                                                                                                                                                         |
+|            | GetNodeWithName(name string) NodeI                    | Returns the node with the given name. Internally a map[string]\*NodeI contains all of the nodes. This simple returns the value. If the value is not found a nil is returned.                                                                                                                                                                 |
+|            | GetSortedKeys() []string                              | Returns a list of keys from the map sorted a to z by name. Altering this list has NO effect on the underlying JsonObject.                                                                                                                                                                                                                    |
+|            | GetValuesSorted() []NodeI                             | Returns a list of all the values in the map sorted a to z by name.  Altering this list (add, remove) has NO effect on the underlying JsonObject.                                                                                                                                                                                             |
+|            | GetValues() []NodeI                                   | Returns a list of all the values in the map. Altering this list (add, remove) has NO effect on the underlying JsonObject.                                                                                                                                                                                                                    |
+|            | Add(node NodeI)                                       | Adds the node to the map. It uses the node name as the map key.                                                                                                                                                                                                                                                                              |
+|            | Remove(nodeRemove NodeI) error                        | Removes a given node from the JsonObject. This does not use the node name. You need to Find the node first. If the node in NOT in the map an error is returned.                                                                                                                                                                              |
+|            | Len()                                                 | Returns the combined number of objects in the list.                                                                                                                                                                                                                                                                                          |
 
 ## Static functions (utils)
 
@@ -310,55 +310,55 @@ A path to ANY node in a node tree can be described by a 'path' to the node. The 
 
 A Path is can be defined as follows:
 
-- path "a.b.c" delim "." - The path separator (or delimiter) is the '.' character. 
+- path "a.b.c" delim "." - The path separator (or delimiter) is the '.' character.
 
 This example path could be used to find a node 'c' in a container node 'b' in a root container node 'a'. The '.' separator for the paths is defined by the second parameter 'delim'.
 
-- path "a|b|c" delim "|" - The path separator (or delimiter) is the '.' character. 
+- path "a|b|c" delim "|" - The path separator (or delimiter) is the '.' character.
 
 This example path could be used to find a node 'c' in a container node 'b' in a root container node 'a'. The '.' separator for the paths is defined by the second parameter 'delim'.
 
 
 
-| Function                          | description                                                  | Example                                                      |
-| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Function                          | description                                                                                                                                                                                                                                                                                                                                | Example                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
 | NewPath(path, delim string) *Path | Returns a path defined by as string and a delimeter. The example path could be used to find a node 'c' in a container 'b' in a root container 'a'. Note the '.' separator for the paths is defined by the second parameter 'delim'. Both of the examples are equivalent unless there is a node with the name 'a.b'. See the third example. | p:=NewPath("a.b.c",".") p:=NewPath("a\|b\|c","\|") p:=NewPath("a.b\|c","\|") |
-|                                   |                                                              |                                                              |
-|                                   |                                                              |                                                              |
+|                                   |                                                                                                                                                                                                                                                                                                                                            |                                                                              |
+|                                   |                                                                                                                                                                                                                                                                                                                                            |                                                                              |
 
 
 
-These functions are stand alone utilities: 
+These functions are stand alone utilities:
 
 These function do NOT include the Structure creation functions such as ```NewJsonString(name string, value string)```. These are already covered above.
 
-| Function name                                                | Desc                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Parse(json []byte) (node NodeI, err error)                   | Parse a []byte array from a string or file. Returns a root node or an error if the parser fails. This node will be either a JsonList or a JsonObject node. |
-| Find(node NodeI, path *Path) (NodeI, error)                  | Find a node from a Path. Returns the node or an error if not found |
-| FindParentNode(root, target NodeI) (NodeI, bool)             | Find the parent of a node. This function uses the WalkNodeTree function to search the tree structure (based at root) for the specific target node. If found it returns the parent node and a boolean indicating sucess. If not found it returns nil, false.  See below for an example |
+| Function name                                                                                    | Desc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Parse(json []byte) (node NodeI, err error)                                                       | Parse a []byte array from a string or file. Returns a root node or an error if the parser fails. This node will be either a JsonList or a JsonObject node.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Find(node NodeI, path *Path) (NodeI, error)                                                      | Find a node from a Path. Returns the node or an error if not found                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| FindParentNode(root, target NodeI) (NodeI, bool)                                                 | Find the parent of a node. This function uses the WalkNodeTree function to search the tree structure (based at root) for the specific target node. If found it returns the parent node and a boolean indicating sucess. If not found it returns nil, false.  See below for an example                                                                                                                                                                                                                                                                                                                                                                      |
 | WalkNodeTree(root, target NodeI, onEachNode func(NodeI, NodeI, NodeI) bool) (NodeI, NodeI, bool) | Walk the node tree and visit each node. This function starts at the 'root' node and visits EVERY node under the 'root'. For each node it visits it will call the function 'onEachNode' passing in the current node (first parameter), the current nodes parent node (the second parameter) and the 'target' node (the third parameter). If the 'onEachNode' function returns 'true' the walk is terminated and the current node, it's parent and 'true' are returned from WalkNodeTree. If  'onEachNode'  never returns true untill all nodes have been visited then nil, nil, false will be returned from WalkNodeTree function. See below for an example |
-| DiagnosticList(node NodeI) string                            | Returns a string that represents the structure of the node provided. This is really useful if you cannot see how the node objects are packed. |
-| GetNodeTypeName(tt NodeType) string                          | Given a NodeType this returns a string value for the type. NT_STRING returns "STRING" |
-| Remove(root, node NodeI) error                               | Removes the node from the root. This will search for the node in the nodes under and including the root node. It will then remove that node if found. Will return an error if not found or the root node is the node to be removed. |
-| Rename(root, node NodeI, newName string) error               | Renames the node in the root. This will search for the node in the nodes under the root node. It will then rename that node if found. Will return an error if not found or the rename would cause a duplicate in a container node. |
-| CreateAndReturnNodeAtPath(root NodeI, path *Path, nodeType NodeType) (NodeI, error) | Given a path from the root node, this method will ensure that all nodes in that path exist and that the last (leaf) node is of the correct type. It will create all of the required nodes. An error is returned if the leaf node is found but is not of the correct type. An error is returned if any existing intermediate nodes are not container nodes. |
+| DiagnosticList(node NodeI) string                                                                | Returns a string that represents the structure of the node provided. This is really useful if you cannot see how the node objects are packed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| GetNodeTypeName(tt NodeType) string                                                              | Given a NodeType this returns a string value for the type. NT_STRING returns "STRING"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Remove(root, node NodeI) error                                                                   | Removes the node from the root. This will search for the node in the nodes under and including the root node. It will then remove that node if found. Will return an error if not found or the root node is the node to be removed.                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Rename(root, node NodeI, newName string) error                                                   | Renames the node in the root. This will search for the node in the nodes under the root node. It will then rename that node if found. Will return an error if not found or the rename would cause a duplicate in a container node.                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| CreateAndReturnNodeAtPath(root NodeI, path *Path, nodeType NodeType) (NodeI, error)              | Given a path from the root node, this method will ensure that all nodes in that path exist and that the last (leaf) node is of the correct type. It will create all of the required nodes. An error is returned if the leaf node is found but is not of the correct type. An error is returned if any existing intermediate nodes are not container nodes.                                                                                                                                                                                                                                                                                                 |
 
 ### Web functions
 
-| Func                                                         | Desc                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| GetJsonParsed(getUrl string) (NodeI, error)                  | Fetch and parse json data from a URL using the HTTP GET protocol |
-| func GetJson(getUrl string) ([]byte, error)                  | Fetch data from a URL using the HTTP GET protocol            |
-| PostData(postUrl string, contentType string, data []byte) ([]byte, error) | Send data to a URL using the HTTP POST protocol. Content type must be defined. For Json it should be "application/json". |
-| PostJsonBytes(postUrl string, data []byte) ([]byte, error)   | Uses PostData with a content type "application/octet-stream". This is usefull if the data is encrypted. |
-| PostJsonText(postUrl string, data []byte) ([]byte, error)    | Uses PostData with a content type "application/json". This is usefull if the data is plain json. |
-| PostJsonValue(postUrl string, node NodeI) ([]byte, error)    | Uses PostData with a content type "application/json". The data is derived from the JsonValue() function on the node provided. This send plain json without formatting. |
+| Func                                                                       | Desc                                                                                                                                                                                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GetJsonParsed(getUrl string) (NodeI, error)                                | Fetch and parse json data from a URL using the HTTP GET protocol                                                                                                                                 |
+| func GetJson(getUrl string) ([]byte, error)                                | Fetch data from a URL using the HTTP GET protocol                                                                                                                                                |
+| PostData(postUrl string, contentType string, data []byte) ([]byte, error)  | Send data to a URL using the HTTP POST protocol. Content type must be defined. For Json it should be "application/json".                                                                         |
+| PostJsonBytes(postUrl string, data []byte) ([]byte, error)                 | Uses PostData with a content type "application/octet-stream". This is usefull if the data is encrypted.                                                                                          |
+| PostJsonText(postUrl string, data []byte) ([]byte, error)                  | Uses PostData with a content type "application/json". This is usefull if the data is plain json.                                                                                                 |
+| PostJsonValue(postUrl string, node NodeI) ([]byte, error)                  | Uses PostData with a content type "application/json". The data is derived from the JsonValue() function on the node provided. This send plain json without formatting.                           |
 | PostJsonValueIndented(tab int, postUrl string, node NodeI) ([]byte, error) | Uses PostData with a content type "application/json". The data is derived from the JsonValueIndented(n) function on the node provided. This send json formatted with a indent (tab) of n spaces. |
 
 ### Searching the tree
 
-The Find function will search the tree structure for a specific node. It uses a path string to define the search path: 
+The Find function will search the tree structure for a specific node. It uses a path string to define the search path:
 
 Given the following json:
 
@@ -378,7 +378,7 @@ json = []byte(`{
 	 }`)
 ```
 
-Example: Find the address phone number. 
+Example: Find the address phone number.
 
 ```go
 func ExampleFindWithPath() {
@@ -403,7 +403,7 @@ true <nil>
 
 **Note:** Although 'phoneNumbers' is a list it will search for named objects within the list.
 
-**Note:** The index notation can be used for accessing elements in lists directly. It will return literals as well as objects. 
+**Note:** The index notation can be used for accessing elements in lists directly. It will return literals as well as objects.
 
 Be warned that the order of the lists (and objects) cannot be assured so this is a last stop for finding elements in a list.
 
@@ -422,7 +422,7 @@ fmt.Println(parser.Find(node, "address"))
 "address":{"business": true,"phoneNumbers":[{"type": "home"},{"number": "7349282382"},{"current": true,"loc": "UK"}],"streetAddress": "101","city": "San Diego","state": "CA"} <nil>
 ```
 
-Note: The default String() method on JsonList and JsonObject returns JsonValue(). For all other node types it returns the String of the value of the node. 
+Note: The default String() method on JsonList and JsonObject returns JsonValue(). For all other node types it returns the String of the value of the node.
 
 ### Finding a parent of a Node
 
@@ -512,7 +512,7 @@ func ExampleWalkNodeTreeUntilTarget() {
 		panic("Target not found")
 	}
 	n, p, ok := parser.WalkNodeTree(root, target, func(n, p, t parser.NodeI) bool {
-		return n == t // If the node equals the target this returns true! 
+		return n == t // If the node equals the target this returns true!
 	})
 	if ok {
 		fmt.Printf("Node   Name: %s\n", n.GetName()) // Print the node with the value 'CA'
@@ -536,13 +536,13 @@ Using the following code will print the structure of the objects on the node tre
 fmt.Println(parser.DiagnosticList(node))
 Diag
 OBJECT: N:''
-  OBJECT: N:'address' 
+  OBJECT: N:'address'
     BOOL: N:'business' V:'true'
     STRING: N:'city' V:'San Diego'
-    LIST: N:'phoneNumbers' 
+    LIST: N:'phoneNumbers'
       STRING: N:'type' V:'home'
       STRING: N:'number' V:'7349282382'
-      OBJECT: N:'' 
+      OBJECT: N:''
         BOOL: N:'current' V:'true'
         STRING: N:'loc' V:'UK'
     STRING: N:'state' V:'CA'

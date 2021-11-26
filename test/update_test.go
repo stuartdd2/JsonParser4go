@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/stuartdd/jsonParserGo/parser"
+	"github.com/stuartdd2/JsonParser4go/parser"
 	"testing"
 )
 
