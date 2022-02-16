@@ -50,6 +50,7 @@ type NodeI interface {
 
 type NodeC interface {
 	// From parent node
+	GetName() string
 	GetValues() []NodeI
 	Len() int
 	Add(node NodeI) error
