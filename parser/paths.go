@@ -66,6 +66,24 @@ func (p *Path) String() string {
 	return sb.String()
 }
 
+//
+// Equal does NOT depend on the delim, only on the nodes
+//
+func (p *Path) Equal(anyPath *Path) bool {
+	if anyPath == nil {
+		return false
+	}
+	if len(p.path) == len(anyPath.path) {
+		for i, v := range p.path {
+			if v != anyPath.path[i] {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
 func (p *Path) PathAppend(p2 *Path) *Path {
 	return &Path{path: append(p.path, p2.path...), delim: p.delim}
 }

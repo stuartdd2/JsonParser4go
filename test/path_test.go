@@ -1,10 +1,50 @@
 package test
 
 import (
-	"github.com/stuartdd2/JsonParser4go/parser"
+	"reflect"
 	"testing"
+
+	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
+func TestEqual(t *testing.T) {
+	p := parser.NewBarPath("a|b|c")
+	pp := parser.NewBarPath("a|b|c")
+	pp1 := parser.NewBarPath("a|b")
+	pp2 := parser.NewBarPath("a|b|2")
+	ppD := parser.NewDotPath("a.b.c")
+
+	if p.String() != pp.String() {
+		t.Errorf("TestEqual failed String() compare")
+	}
+	if p.String() == ppD.String() {
+		t.Errorf("TestEqual failed String() compare dot and bar")
+	}
+	if !reflect.DeepEqual(p, pp) {
+		t.Errorf("TestEqual failed DeepEqual")
+	}
+	if reflect.DeepEqual(p, ppD) {
+		t.Errorf("TestEqual failed DeepEqual dot and bar")
+	}
+	if !p.Equal(pp) {
+		t.Errorf("TestEqual failed should be Equal")
+	}
+	if !p.Equal(ppD) {
+		t.Errorf("TestEqual failed dot and bar should be Equal")
+	}
+	if p.Equal(nil) {
+		t.Errorf("TestEqual failed Equals(nil) should never be equal")
+	}
+	if p.Equal(pp1) {
+		t.Errorf("TestEqual failed Equals(pp1) not same len")
+	}
+	if p.Equal(pp2) {
+		t.Errorf("TestEqual failed Equals(pp2) not same content")
+	}
+	if p == pp {
+		t.Errorf("TestEqual failed == never return true because of the array in Path")
+	}
+}
 func TestStringFirst(t *testing.T) {
 	p1 := parser.NewPath("a|b|c", "|")
 	if p1.StringFirst() != "a" {

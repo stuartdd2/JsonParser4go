@@ -40,7 +40,7 @@ var (
 )
 
 func main() {
-	ExampleGet()
+	ExampleDiagnostic()
 }
 
 func ExampleGet() {
