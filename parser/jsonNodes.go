@@ -53,6 +53,7 @@ type NodeC interface {
 	GetName() string
 	GetValues() []NodeI
 	Len() int
+	Clear()
 	Add(node NodeI) error
 	GetNodeWithName(name string) NodeI
 	Remove(nodeRemove NodeI) error
@@ -149,6 +150,10 @@ func (n *JsonObject) GetValuesSorted() []NodeI {
 	return values
 }
 
+func (n *JsonObject) Clear() {
+	n.value = make(map[string]*NodeI)
+}
+
 func (n *JsonObject) Len() int {
 	return len(n.value)
 }
@@ -220,6 +225,10 @@ func (n *JsonList) Add(node NodeI) error {
 	}
 	n.value = append(n.value, &node)
 	return nil
+}
+
+func (n *JsonList) Clear() {
+	n.value = make([]*NodeI, 0)
 }
 
 func (n *JsonList) Len() int {

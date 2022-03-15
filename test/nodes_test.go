@@ -2,9 +2,10 @@ package test
 
 import (
 	"fmt"
-	"github.com/stuartdd2/JsonParser4go/parser"
 	"strings"
 	"testing"
+
+	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
 var (
@@ -40,6 +41,86 @@ var (
 // 		}]
 // 	}
 // }
+func TestObjectClear(t *testing.T) {
+	root1, err := parser.Parse(obj5)
+	if err != nil {
+		t.Errorf("failed: to parse obj5: %s", err.Error())
+		return
+	}
+	a, err := parser.Find(root1, parser.NewDotPath("address"))
+	if err != nil {
+		t.Errorf("failed: to find address: %s", err.Error())
+		return
+	}
+	if a.GetNodeType() != parser.NT_OBJECT {
+		t.Error("address should be an object")
+		return
+	}
+	aO := a.(*parser.JsonObject)
+	if aO.Len() != 3 {
+		t.Errorf("address should be 3 not %d", aO.Len())
+		return
+	}
+	CheckContains(t, aO, "\"list2\": [{\"string\": \"home\"}")
+	aO.Clear()
+	if aO.Len() != 0 {
+		t.Errorf("address should be 0 not %d", aO.Len())
+		return
+	}
+	CheckContains(t, aO, "{}")
+}
+
+func TestListClear(t *testing.T) {
+	root1, err := parser.Parse(obj5)
+	if err != nil {
+		t.Errorf("failed: to parse obj5: %s", err.Error())
+		return
+	}
+	l, err := parser.Find(root1, parser.NewDotPath("list1"))
+	if err != nil {
+		t.Errorf("failed: to find list1: %s", err.Error())
+		return
+	}
+	if l.GetNodeType() != parser.NT_LIST {
+		t.Error("List1 should be a list")
+		return
+	}
+	lO := l.(*parser.JsonList)
+	if lO.Len() != 4 {
+		t.Errorf("List1 should be 4 not %d", lO.Len())
+		return
+	}
+	CheckContains(t, lO, "\"Joe\",{\"lastName\": \"Jackson\"}")
+	lO.Clear()
+	if lO.Len() != 0 {
+		t.Errorf("List1 should be 0 not %d", lO.Len())
+		return
+	}
+	CheckContains(t, lO, "[]")
+
+	l2, err := parser.Find(root1, parser.NewDotPath("list2"))
+	if err != nil {
+		t.Errorf("failed: to find list2: %s", err.Error())
+		return
+	}
+	if l2.GetNodeType() != parser.NT_LIST {
+		t.Error("List2 should be a list")
+		return
+	}
+	l2O := l2.(*parser.JsonList)
+	if l2O.Len() != 3 {
+		t.Errorf("List2 should be 3 not %d", l2O.Len())
+		return
+	}
+	CheckContains(t, l2, "{\"lastName\": \"Jackson\"}")
+	l2O.Clear()
+	if l2O.Len() != 0 {
+		t.Errorf("List2 should be 0 not %d", l2O.Len())
+		return
+	}
+	CheckContains(t, l2, "[]")
+}
+
 func TestClone(t *testing.T) {
 	root1, err := parser.Parse(obj2)
 	if err != nil {
