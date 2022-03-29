@@ -58,6 +58,15 @@ type NodeC interface {
 	Remove(nodeRemove NodeI) error
 }
 
+var (
+	_ NodeC = (*JsonObject)(nil)
+	_ NodeC = (*JsonList)(nil)
+	_ NodeI = (*JsonString)(nil)
+	_ NodeI = (*JsonNumber)(nil)
+	_ NodeI = (*JsonBool)(nil)
+	_ NodeI = (*JsonNull)(nil)
+)
+
 //
 // Base node (parent) interface (NodeI) and properties
 //
@@ -611,4 +620,17 @@ func stringValueTabIndent(n NodeI, tab, indent int, useIndent int) string {
 		sb.WriteString(n.String())
 	}
 	return sb.String()
+}
+
+func baseEquals(a, b NodeC) bool {
+	if a.GetNodeType() != b.GetNodeType() {
+		return false
+	}
+	if a.GetName() != b.GetName() {
+		return false
+	}
+	if a.IsContainer() != b.IsContainer() {
+		return false
+	}
+	return true
 }
