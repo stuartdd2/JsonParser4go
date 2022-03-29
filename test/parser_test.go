@@ -2,9 +2,10 @@ package test
 
 import (
 	"fmt"
-	"github.com/stuartdd2/JsonParser4go/parser"
 	"strings"
 	"testing"
+
+	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
 var (
@@ -231,7 +232,7 @@ func TestErrorBadObjectMissingColon(t *testing.T) {
 	}
 	// t.Errorf("Error: %s", err.Error())
 }
-func makeList() parser.NodeI {
+func makeList() parser.NodeC {
 	p := parser.NewJsonList("")
 	s := parser.NewJsonString("", "literal")
 	n := parser.NewJsonNumber("", 1234.5)

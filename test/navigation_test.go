@@ -1,9 +1,10 @@
 package test
 
 import (
-	"github.com/stuartdd2/JsonParser4go/parser"
 	"strings"
 	"testing"
+
+	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
 func TestWalkNodesUntillFound(t *testing.T) {
@@ -29,7 +30,7 @@ func TestWalkAllNodes(t *testing.T) {
 	root := InitParser(t, "", obj3)
 	target, _ := parser.Find(root, parser.NewPath("address|phoneNumbers", "|"))
 	parser.WalkNodeTree(root, target, func(node, parent, target parser.NodeI) bool {
-		m[node.GetName()] = node.JsonValue()
+		m[node.GetName()] = node.GetName()
 		return false
 	})
 	var sb strings.Builder

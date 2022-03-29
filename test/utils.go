@@ -103,7 +103,7 @@ var (
 	}`)
 )
 
-func InitParser(t *testing.T, sourceName string, dat []byte) parser.NodeI {
+func InitParser(t *testing.T, sourceName string, dat []byte) parser.NodeC {
 	node, err := parser.Parse(dat)
 	if err != nil {
 		t.Errorf("Failed to parse file %s. Error %s\n", sourceName, err.Error())

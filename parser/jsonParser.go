@@ -24,7 +24,7 @@ const (
 	pad string = "                  "
 )
 
-func Parse(json []byte) (node NodeI, err error) {
+func Parse(json []byte) (node NodeC, err error) {
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -33,7 +33,7 @@ func Parse(json []byte) (node NodeI, err error) {
 		}
 	}()
 	sc := NewScanner(json).SkipSpace()
-	var root NodeI
+	var root NodeC
 	tok := sc.Next()
 	switch tok {
 	case '[':
@@ -49,7 +49,7 @@ func Parse(json []byte) (node NodeI, err error) {
 	return
 }
 
-func parseObject(sc *Scanner, name string) NodeI {
+func parseObject(sc *Scanner, name string) NodeC {
 	root := NewJsonObject(name)
 	var err error
 	for {
@@ -97,7 +97,7 @@ func parseObject(sc *Scanner, name string) NodeI {
 	}
 }
 
-func parseList(sc *Scanner, name string) NodeI {
+func parseList(sc *Scanner, name string) NodeC {
 	root := NewJsonList(name)
 	for {
 		toc := sc.NextToken()

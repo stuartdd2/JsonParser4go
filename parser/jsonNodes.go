@@ -38,7 +38,6 @@ const (
 )
 
 type NodeI interface {
-	// From parent node
 	GetName() string
 	setName(newName string)
 	GetNodeType() NodeType
@@ -50,7 +49,7 @@ type NodeI interface {
 
 type NodeC interface {
 	// From parent node
-	GetName() string
+	NodeI
 	GetValues() []NodeI
 	Len() int
 	Clear()
@@ -504,8 +503,8 @@ func Clone(n NodeI, newName string, cloneLeafNodeData bool) NodeI {
 }
 
 func Rename(root, node NodeI, newName string) error {
-	if root == node {
-		return fmt.Errorf("cannot rename root node as it has no name")
+	if node.GetName() == "" {
+		return fmt.Errorf("cannot rename. This node has no name!")
 	}
 	parentNode, found := FindParentNode(root, node)
 	if found {
