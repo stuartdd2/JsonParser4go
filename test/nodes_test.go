@@ -16,31 +16,6 @@ var (
 	testRootListWithMapsAndLists = []byte(`{"OBJ.BO.1": true},{"EMPTY": []},{"FRED": ["Help"]}|"BLUE":|"OBJ.1.ST.1": "ABC"|"OBJ.1.BO.1": true|"OBJ.1.FL.1": 123`)
 )
 
-// {
-// 	"firstName": "Joe",
-// 	"lastName": "Jackson",
-// 	"gender": "male",
-// 	"age": 28,
-// 	"bo": true,
-// 	"no": null,
-// 	"address": {
-// 		"streetAddress": "101",
-// 		"city": "San Diego",
-// 		"state": "CA",
-// 		"business": true,
-// 		"phoneNumbers": [{
-// 			"string": "home"
-// 		}, {
-// 			"number": 7349282382
-// 		}, {
-// 			"boolean": true
-// 		}, {
-// 			"number": 99999999
-// 		}, {
-// 			"no": null
-// 		}]
-// 	}
-// }
 func TestObjectClear(t *testing.T) {
 	root1, err := parser.Parse(obj5)
 	if err != nil {

@@ -8,3 +8,5 @@ go clean -cache
 
 echo BUILDING
 go build
+rm -f JsonParser4go
+
