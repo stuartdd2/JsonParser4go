@@ -54,7 +54,7 @@ type NodeC interface {
 	GetValues() []NodeI
 	Len() int
 	Clear()
-	Add(node NodeI) error
+	Add(node NodeI) (NodeI, error)
 	GetNodeWithName(name string) NodeI
 	Remove(nodeRemove NodeI) error
 }
@@ -152,7 +152,19 @@ func (n *JsonObject) GetValues() []NodeI {
 }
 
 func (n *JsonObject) Equal(b NodeI) bool {
-	return baseEquals(n, b)
+	if baseEquals(n, b) {
+		l := b.(*JsonObject)
+		if len(l.value) != len(n.value) {
+			return false
+		}
+		for key, val := range l.value {
+			if !(*val).Equal(*n.value[key]) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
 
 func (n *JsonObject) GetValuesSorted() []NodeI {
@@ -171,15 +183,15 @@ func (n *JsonObject) Len() int {
 	return len(n.value)
 }
 
-func (n *JsonObject) Add(node NodeI) error {
+func (n *JsonObject) Add(node NodeI) (NodeI, error) {
 	if node.GetName() == "" {
-		return fmt.Errorf("a node in a JsonObject container must have a name")
+		return nil, fmt.Errorf("a node in a JsonObject container must have a name")
 	}
 	if n.value[node.GetName()] != nil {
-		return fmt.Errorf("duplicate name [%s] in JsonObject container with name [%s]", node.GetName(), n.name)
+		return nil, fmt.Errorf("duplicate name [%s] in JsonObject container with name [%s]", node.GetName(), n.name)
 	}
 	n.value[node.GetName()] = &node
-	return nil
+	return node, nil
 }
 
 func (n *JsonObject) JsonValueIndented(tab int) string {
@@ -229,7 +241,7 @@ func (n *JsonList) GetNodeWithName(name string) NodeI {
 	return nil
 }
 
-func (n *JsonList) Add(node NodeI) error {
+func (n *JsonList) Add(node NodeI) (NodeI, error) {
 	if node.GetNodeType() == NT_OBJECT {
 		obj := node.(*JsonObject)
 		if obj.GetName() == "" && obj.Len() == 1 {
@@ -237,7 +249,7 @@ func (n *JsonList) Add(node NodeI) error {
 		}
 	}
 	n.value = append(n.value, &node)
-	return nil
+	return node, nil
 }
 
 func (n *JsonList) Clear() {
@@ -257,7 +269,19 @@ func (n *JsonList) GetValues() []NodeI {
 }
 
 func (n *JsonList) Equal(b NodeI) bool {
-	return baseEquals(n, b)
+	if baseEquals(n, b) {
+		l := b.(*JsonList)
+		if len(l.value) != len(n.value) {
+			return false
+		}
+		for i, v := range l.value {
+			if !(*v).Equal(*n.value[i]) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
 
 func (n *JsonList) JsonValueIndented(tab int) string {
@@ -460,7 +484,7 @@ func CreateAndReturnNodeAtPath(root NodeI, path *Path, nodeType NodeType) (NodeI
 			return n, nil
 		}
 		ret := NewJsonType(name, nodeType)
-		err := cNode.Add(ret)
+		_, err := cNode.Add(ret)
 		if err != nil {
 			return nil, err
 		}
@@ -471,7 +495,7 @@ func CreateAndReturnNodeAtPath(root NodeI, path *Path, nodeType NodeType) (NodeI
 		n := cNode.GetNodeWithName(nn)
 		if n == nil {
 			n = NewJsonObject(nn)
-			err := cNode.Add(n)
+			_, err := cNode.Add(n)
 			if err != nil {
 				return nil, err
 			}
@@ -564,7 +588,7 @@ func Rename(root, node NodeI, newName string) error {
 				}
 				delete(parentNode.(*JsonObject).value, node.GetName())
 				node.setName(newName)
-				err := parentNode.(*JsonObject).Add(node)
+				_, err := parentNode.(*JsonObject).Add(node)
 				if err != nil {
 					return err
 				}

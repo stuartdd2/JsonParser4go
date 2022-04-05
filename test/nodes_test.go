@@ -16,113 +16,6 @@ var (
 	testRootListWithMapsAndLists = []byte(`{"OBJ.BO.1": true},{"EMPTY": []},{"FRED": ["Help"]}|"BLUE":|"OBJ.1.ST.1": "ABC"|"OBJ.1.BO.1": true|"OBJ.1.FL.1": 123`)
 )
 
-func TestEqualString(t *testing.T) {
-	n1 := parser.NewJsonString("a", "abc")
-	if n1.Equal(parser.NewJsonString("a", "def")) {
-		t.Error("failed: String 'a:abc' should not equal String 'a:def'")
-	}
-	if n1.Equal(parser.NewJsonString("b", "def")) {
-		t.Error("failed: String 'a:abc' should not equal String 'b:def'")
-	}
-	if n1.Equal(parser.NewJsonString("", "abc")) {
-		t.Error("failed: String 'a:abc' should not equal String ':abc'")
-	}
-	if !n1.Equal(parser.NewJsonString("a", "abc")) {
-		t.Error("failed: String 'a:abc' should equal String 'a:abc'")
-	}
-	n := parser.NewJsonString("", "def")
-	if n.Equal(parser.NewJsonString("a", "def")) {
-		t.Error("failed: String ':def' should not equal String 'a:def'")
-	}
-	if n.Equal(parser.NewJsonString("", "abc")) {
-		t.Error("failed: String ':def' should not equal String ':abc'")
-	}
-	if !n.Equal(parser.NewJsonString("", "def")) {
-		t.Error("failed: String ':def' should equal String ':def'")
-	}
-	n3 := parser.NewJsonString("a", "true")
-	if n3.Equal(parser.NewJsonBool("a", true)) {
-		t.Error("failed: String 'a:true' should not equal Bool 'a:true'")
-	}
-	n4 := parser.NewJsonString("a", "123")
-	if n4.Equal(parser.NewJsonNumber("a", 123)) {
-		t.Error("failed: String 'a:123' should not equal Number 'a:123'")
-	}
-}
-
-func TestEqualBool(t *testing.T) {
-	n1 := parser.NewJsonBool("a", true)
-	if n1.Equal(parser.NewJsonBool("a", false)) {
-		t.Error("failed: Bool 'a:true' should not equal Bool 'a:false'")
-	}
-	if n1.Equal(parser.NewJsonBool("b", false)) {
-		t.Error("failed: Bool 'a:true' should not equal Bool 'b:false'")
-	}
-	if n1.Equal(parser.NewJsonBool("", true)) {
-		t.Error("failed: Bool 'a:true' should not equal Bool ':true'")
-	}
-	if !n1.Equal(parser.NewJsonBool("a", true)) {
-		t.Error("failed: Bool 'a:true' should equal Bool 'a:true'")
-	}
-	n := parser.NewJsonBool("", false)
-	if n.Equal(parser.NewJsonBool("a", false)) {
-		t.Error("failed: Bool ':false' should not equal Bool 'a:false'")
-	}
-	if n.Equal(parser.NewJsonBool("", true)) {
-		t.Error("failed: Bool ':false' should not equal Bool ':true'")
-	}
-	if !n.Equal(parser.NewJsonBool("", false)) {
-		t.Error("failed: Bool ':false' should equal Bool ':false'")
-	}
-
-}
-
-func TestEqualNull(t *testing.T) {
-	na := parser.NewJsonNull("a")
-	if na.Equal(parser.NewJsonNull("b")) {
-		t.Error("failed: Null 'a' should not equal Null 'b'")
-	}
-	if na.Equal(parser.NewJsonNumber("b", 10)) {
-		t.Error("failed: Null 'a' should not equal Number 'b'")
-	}
-	if !na.Equal(parser.NewJsonNull("a")) {
-		t.Error("failed: Null 'a' should equal 'a'")
-	}
-	n := parser.NewJsonNull("")
-	if n.Equal(parser.NewJsonNull("b")) {
-		t.Error("failed: Null '' should not equal Null 'b'")
-	}
-	if n.Equal(parser.NewJsonNumber("b", 10)) {
-		t.Error("failed: Null '' should not equal Number 'b'")
-	}
-	if !n.Equal(parser.NewJsonNull("")) {
-		t.Error("failed: Null '' should equal ''")
-	}
-}
-
-func TestEqualNumber(t *testing.T) {
-	n1 := parser.NewJsonNumber("a", 123)
-	if n1.Equal(parser.NewJsonNumber("b", 124)) {
-		t.Error("failed: Number 'a:123' should not equal 'b:123'")
-	}
-	if n1.Equal(parser.NewJsonNumber("a", 124)) {
-		t.Error("failed: Number 'a:123' should not equal 'a:124'")
-	}
-	if n1.Equal(parser.NewJsonNull("a")) {
-		t.Error("failed: Number 'a:123' should not equal Null 'a'")
-	}
-	if !n1.Equal(parser.NewJsonNumber("a", 123)) {
-		t.Error("failed: Number 'a:123' should equal 'a:123'")
-	}
-	n := parser.NewJsonNumber("", 123)
-	if n.Equal(parser.NewJsonNumber("", 124)) {
-		t.Error("failed: Number ':123' should not equal ':124'")
-	}
-	if !n.Equal(parser.NewJsonNumber("", 123)) {
-		t.Error("failed: Number ':123' should equal ':123'")
-	}
-}
-
 func TestObjectClear(t *testing.T) {
 	root1, err := parser.Parse(obj5)
 	if err != nil {
@@ -645,11 +538,11 @@ func testRename(t *testing.T, root parser.NodeI, pathBefore, pathAfter, nameBefo
 
 func TestObjectDuplicateName(t *testing.T) {
 	root := parser.NewJsonObject("")
-	err := root.Add(parser.NewJsonBool("B_OBJ", true))
+	_, err := root.Add(parser.NewJsonBool("B_OBJ", true))
 	if err != nil {
 		t.Errorf("Should not return an error")
 	}
-	err = root.Add(parser.NewJsonNumber("B_OBJ", 12345))
+	_, err = root.Add(parser.NewJsonNumber("B_OBJ", 12345))
 	if err == nil {
 		t.Errorf("Should return an error")
 	}
@@ -842,11 +735,11 @@ func TestNodes(t *testing.T) {
 	ob.Add(parser.NewJsonString("OBJ.ST.1", "ABC"))
 	ob.Add(parser.NewJsonBool("OBJ.BO.1", true))
 	ob.Add(parser.NewJsonNumber("OBJ.FL.1", 123))
-	err := ob.Add(parser.NewJsonNumber("OBJ.BO.1", 123))
+	_, err := ob.Add(parser.NewJsonNumber("OBJ.BO.1", 123))
 	if err == nil {
 		t.Errorf("Cannot add duplicate nodes to objects")
 	}
-	err = ob.Add(parser.NewJsonNumber("", 123))
+	_, err = ob.Add(parser.NewJsonNumber("", 123))
 	if err == nil {
 		t.Errorf("Cannot add nodes to objects without names")
 	}

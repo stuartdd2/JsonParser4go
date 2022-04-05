@@ -68,19 +68,19 @@ func parseObject(sc *Scanner, name string) NodeC {
 		toc = sc.NextToken()
 		switch toc.GetType() {
 		case TT_QUOTED_STRING:
-			err = root.Add(NewJsonString(name, toc.GetStringValue()))
+			_, err = root.Add(NewJsonString(name, toc.GetStringValue()))
 		case TT_NUMBER:
-			err = root.Add(NewJsonNumber(name, toc.GetNumberValue()))
+			_, err = root.Add(NewJsonNumber(name, toc.GetNumberValue()))
 		case TT_BOOL_TRUE:
-			err = root.Add(NewJsonBool(name, true))
+			_, err = root.Add(NewJsonBool(name, true))
 		case TT_BOOL_FALSE:
-			err = root.Add(NewJsonBool(name, false))
+			_, err = root.Add(NewJsonBool(name, false))
 		case TT_NULL:
-			err = root.Add(NewJsonNull(name))
+			_, err = root.Add(NewJsonNull(name))
 		case TT_ARRAY_OPEN:
-			err = root.Add(parseList(sc, name))
+			_, err = root.Add(parseList(sc, name))
 		case TT_OBJECT_OPEN:
-			err = root.Add(parseObject(sc, name))
+			_, err = root.Add(parseObject(sc, name))
 		default:
 			panic(fmt.Sprintf("unrecognised token '%s'. %s ", toc.GetStringValue(), sc.Diag(toc.GetStringValue())))
 		}
