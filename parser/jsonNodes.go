@@ -40,6 +40,7 @@ const (
 type NodeI interface {
 	GetName() string
 	setName(newName string)
+	Equal(b NodeI) bool
 	GetNodeType() NodeType
 	IsContainer() bool
 	String() string
@@ -150,6 +151,10 @@ func (n *JsonObject) GetValues() []NodeI {
 	return values
 }
 
+func (n *JsonObject) Equal(b NodeI) bool {
+	return baseEquals(n, b)
+}
+
 func (n *JsonObject) GetValuesSorted() []NodeI {
 	values := make([]NodeI, 0, len(n.value))
 	for _, k := range n.GetSortedKeys() {
@@ -251,6 +256,10 @@ func (n *JsonList) GetValues() []NodeI {
 	return values
 }
 
+func (n *JsonList) Equal(b NodeI) bool {
+	return baseEquals(n, b)
+}
+
 func (n *JsonList) JsonValueIndented(tab int) string {
 	return stringValueTabIndent(n, tab, 1, INDENT_ON)
 }
@@ -295,6 +304,13 @@ func (n *JsonString) GetValue() string {
 	return n.value
 }
 
+func (n *JsonString) Equal(b NodeI) bool {
+	if baseEquals(n, b) {
+		return (n.value == b.(*JsonString).value)
+	}
+	return false
+}
+
 func (n *JsonString) SetValue(newValue string) {
 	n.value = newValue
 }
@@ -325,6 +341,13 @@ func NewJsonNumber(name string, value float64) *JsonNumber {
 
 func (n *JsonNumber) GetValue() float64 {
 	return n.value
+}
+
+func (n *JsonNumber) Equal(b NodeI) bool {
+	if baseEquals(n, b) {
+		return (n.value == b.(*JsonNumber).value)
+	}
+	return false
 }
 
 func (n *JsonNumber) GetIntValue() int64 {
@@ -370,6 +393,13 @@ func (n *JsonBool) GetValue() bool {
 	return n.value
 }
 
+func (n *JsonBool) Equal(b NodeI) bool {
+	if baseEquals(n, b) {
+		return (n.value == b.(*JsonBool).value)
+	}
+	return false
+}
+
 func (n *JsonBool) SetValue(newValue bool) {
 	n.value = newValue
 }
@@ -395,6 +425,10 @@ type JsonNull struct {
 
 func NewJsonNull(name string) *JsonNull {
 	return &JsonNull{jsonParentNode: NewJsonParentNode(name, NT_NULL)}
+}
+
+func (n *JsonNull) Equal(b NodeI) bool {
+	return baseEquals(n, b)
 }
 
 func (n *JsonNull) JsonValueIndented(tab int) string {
@@ -622,7 +656,7 @@ func stringValueTabIndent(n NodeI, tab, indent int, useIndent int) string {
 	return sb.String()
 }
 
-func baseEquals(a, b NodeC) bool {
+func baseEquals(a, b NodeI) bool {
 	if a.GetNodeType() != b.GetNodeType() {
 		return false
 	}
