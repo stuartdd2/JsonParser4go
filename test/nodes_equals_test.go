@@ -7,6 +7,60 @@ import (
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
+func TestEqualWithParse(t *testing.T) {
+	na, err := parser.Parse(obj3)
+	if err != nil {
+		t.Errorf("Failed to parse obj3 to na")
+	}
+	nb, err := parser.Parse(obj3)
+	if err != nil {
+		t.Errorf("Failed to parse obj3 to nb")
+	}
+	if !na.Equal(nb) {
+		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
+	}
+	naState, err := parser.Find(na, parser.NewDotPath("address.state"))
+	if err != nil {
+		t.Errorf("Failed to find 'state' in na")
+	}
+	nbState, err := parser.Find(nb, parser.NewDotPath("address.state"))
+	if err != nil {
+		t.Errorf("Failed to find 'state' in nb")
+	}
+	naState.(*parser.JsonString).SetValue("DA")
+	if na.Equal(nb) {
+		t.Errorf("failed: Object '%s' should NOT equal Object '%s'", na.JsonValue(), nb.JsonValue())
+	}
+	nbState.(*parser.JsonString).SetValue("DA")
+	if !na.Equal(nb) {
+		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
+	}
+	naPn, err := parser.Find(na, parser.NewDotPath("address.phoneNumbers.1"))
+	if err != nil {
+		t.Errorf("Failed to find 'address.phoneNumbers[1]' in na. err:%s", err)
+	}
+	nbPn, err := parser.Find(nb, parser.NewDotPath("address.phoneNumbers.1"))
+	if err != nil {
+		t.Errorf("Failed to find 'address.phoneNumbers[1]' in nb. err:%s", err)
+	}
+	naPn.(*parser.JsonNumber).SetValue(100)
+	if na.Equal(nb) {
+		t.Errorf("failed: Object '%s' should NOT equal Object '%s'", na.JsonValue(), nb.JsonValue())
+	}
+	nbPn.(*parser.JsonNumber).SetValue(100)
+	if !na.Equal(nb) {
+		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
+	}
+	parser.Remove(na, naPn)
+	if na.Equal(nb) {
+		t.Errorf("failed: Object '%s' should NOT equal Object '%s'", na.JsonValue(), nb.JsonValue())
+	}
+	parser.Remove(nb, nbPn)
+	if !na.Equal(nb) {
+		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
+	}
+
+}
 func TestEqualObject(t *testing.T) {
 	na := parser.NewJsonObject("a")
 	nb := parser.NewJsonObject("a")
