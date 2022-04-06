@@ -158,7 +158,11 @@ func (n *JsonObject) Equal(b NodeI) bool {
 			return false
 		}
 		for key, val := range l.value {
-			if !(*val).Equal(*n.value[key]) {
+			v, ok := n.value[key]
+			if !ok {
+				return false
+			}
+			if !(*val).Equal(*v) {
 				return false
 			}
 		}
