@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -9,21 +10,25 @@ import (
 
 func TestWalkNodeTreeForTrail3(t *testing.T) {
 	root := InitParser(t, "", obj3)
-	testWNTFP(t, root, parser.NewBarPath("address|business"))
-	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|number"))
-	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|no"))
+	testWNTFP(t, root, parser.NewBarPath("address|business"), "true")
+	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|number"), "7349282382")
+	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|no"), "null")
 }
 
-// func TestWalkNodeTreeForTrail4(t *testing.T) {
-// 	root := InitParser(t, "", obj4)
-// 	testWNTFP(t, root, parser.NewBarPath("list1||list3"))
-// 	testWNTFP(t, root, parser.NewBarPath("list1|lastName"))
-// 	testWNTFP(t, root, parser.NewBarPath("list1||A"))
-// }
+func TestWalkNodeTreeForTrail4(t *testing.T) {
+	root := InitParser(t, "", obj4)
+	testWNTFP(t, root, parser.NewBarPath("list1||list3|2"), "20")
+	testWNTFP(t, root, parser.NewBarPath("list1|lastName"), "Jackson")
+	testWNTFP(t, root, parser.NewBarPath("list1||A"), "10")
+}
 
-func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path) {
-	p, ok := parser.WalkNodeTreeForTrail(root, func(nodes []*parser.NodeI, index int) bool {
-		s := stringWNTFP(nodes, req.GetDelim())
+func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path, val string) {
+	trail, ok := parser.WalkNodeTreeForTrail(root, func(trail *parser.Trail, index int) bool {
+		s := trail.String()
+		if s == req.String() {
+			return true
+		}
+		s = fmt.Sprintf("%s%d", s, index)
 		if s == req.String() {
 			return true
 		}
@@ -33,21 +38,10 @@ func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path) {
 		t.Errorf("WalkNodeTreeForPath: could not find %s", req.String())
 		return
 	}
-	s := stringWNTFP(p, req.GetDelim())
-	if s != req.String() {
-		t.Errorf("PATH: %s should be '%s'", s, req.String())
+	v := trail.GetLast()
+	if v.String() != val && val != "*" {
+		t.Errorf("WalkNodeTreeForPath: incorrect value returned for last node name [%s]. '%s' != '%s'", v.GetName(), v.String(), val)
 	}
-}
-
-func stringWNTFP(nl []*parser.NodeI, delim string) string {
-	var sb strings.Builder
-	for i, v := range nl {
-		sb.WriteString((*v).GetName())
-		if i < len(nl)-1 {
-			sb.WriteRune('|')
-		}
-	}
-	return sb.String()
 }
 
 func TestNoCopyOnFind(t *testing.T) {

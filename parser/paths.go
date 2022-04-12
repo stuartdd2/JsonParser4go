@@ -43,6 +43,21 @@ func (p *Trail) GetList() []*NodeI {
 	return l
 }
 
+func (p *Trail) GetLast() NodeI {
+	if p.len == 0 {
+		return nil
+	}
+	return *p.trail[p.len-1]
+}
+
+func (p *Trail) SetDelim(delim string) {
+	p.delim = delim
+}
+
+func (p *Trail) GetDelim() string {
+	return p.delim
+}
+
 func (p *Trail) Clear() {
 	p.len = 0
 }
@@ -69,7 +84,7 @@ func (p *Trail) String() string {
 	for i, v := range p.GetList() {
 		sb.WriteString((*v).GetName())
 		if i < p.len-1 {
-			sb.WriteString(p.delim)
+			sb.WriteString(p.GetDelim())
 		}
 	}
 	return sb.String()

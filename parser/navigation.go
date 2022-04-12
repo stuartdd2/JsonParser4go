@@ -68,26 +68,25 @@ func visitFindParentNode(node, parent, target NodeI) bool {
 	return node == target
 }
 
-func WalkNodeTreeForTrail(root NodeC, visitWithPath func([]*NodeI, int) bool) ([]*NodeI, bool) {
-	n := make([]*NodeI, 10)
-	i := walkNodeTreeForPaths(root, n, 0, visitWithPath)
+func WalkNodeTreeForTrail(root NodeC, visitWithTrail func(*Trail, int) bool) (*Trail, bool) {
+	trail := NewTrail(10, "|")
+	i := walkNodeTreeForPaths(root, trail, 0, visitWithTrail)
 	if i < 0 {
 		return nil, false
 	}
-	return n[0 : i+1], true
+	return trail, true
 }
 
-func walkNodeTreeForPaths(node NodeC, nodes []*NodeI, dep int, visitWithPath func([]*NodeI, int) bool) int {
+func walkNodeTreeForPaths(node NodeC, trail *Trail, dep int, visitWithTrail func(*Trail, int) bool) int {
 	for i, v := range node.GetValues() {
-		if v.IsContainer() {
-			nodes[dep] = &v
-			return walkNodeTreeForPaths(v.(NodeC), nodes, dep+1, visitWithPath)
-		} else {
-			nodes[dep] = &v
-			if visitWithPath(nodes[0:dep+1], i) {
-				return dep
-			}
+		trail.Push(v)
+		if visitWithTrail(trail, i) {
+			return dep
 		}
+		if v.IsContainer() {
+			return walkNodeTreeForPaths(v.(NodeC), trail, dep+1, visitWithTrail)
+		}
+		trail.Pop()
 	}
 	return -1
 }
