@@ -7,24 +7,26 @@ import (
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
-func TestWalkNodeTreeForPath(t *testing.T) {
+func TestWalkNodeTreeForPath3(t *testing.T) {
 	root := InitParser(t, "", obj3)
 	testWNTFP(t, root, parser.NewBarPath("address|business"))
 	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|number"))
 	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|no"))
 }
-
-func TestWalkNodeXXXh(t *testing.T) {
+func TestWalkNodeTreeForPath4(t *testing.T) {
 	root := InitParser(t, "", obj4)
-	parser.WalkNodeTreeForNodes(root, func(nodes []*parser.NodeI, index int) bool {
-		t.Errorf("%s", stringWNTFP(nodes, "."))
-		return false
-	})
+	testWNTFP(t, root, parser.NewBarPath("list1|lastName"))
+	testWNTFP(t, root, parser.NewBarPath("list1||A"))
+	testWNTFP(t, root, parser.NewBarPath("list1||list3"))
 }
 
 func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path) {
 	p, ok := parser.WalkNodeTreeForNodes(root, func(nodes []*parser.NodeI, index int) bool {
-		return stringWNTFP(nodes, req.GetDelim()) == req.String()
+		s := stringWNTFP(nodes, req.GetDelim())
+		if s == req.String() {
+			return true
+		}
+		return false
 	})
 	if !ok {
 		t.Errorf("WalkNodeTreeForPath: could not find %s", req.String())
@@ -39,15 +41,9 @@ func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path) {
 func stringWNTFP(nl []*parser.NodeI, delim string) string {
 	var sb strings.Builder
 	for i, v := range nl {
-		if (*v).GetName() == "" {
-			sb.WriteRune('"')
-			sb.WriteString((*v).String())
-			sb.WriteRune('"')
-		} else {
-			sb.WriteString((*v).GetName())
-			if i < len(nl)-1 {
-				sb.WriteRune('|')
-			}
+		sb.WriteString((*v).GetName())
+		if i < len(nl)-1 {
+			sb.WriteRune('|')
 		}
 	}
 	return sb.String()
