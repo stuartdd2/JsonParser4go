@@ -24,6 +24,57 @@ var (
 	parserEmptyPath = make([]string, 0)
 )
 
+type Trail struct {
+	trail []*NodeI
+	len   int
+	size  int
+	delim string
+}
+
+func NewTrail(size int, delim string) *Trail {
+	return &Trail{trail: make([]*NodeI, size), len: 0, size: size, delim: delim}
+}
+
+func (p *Trail) GetList() []*NodeI {
+	l := make([]*NodeI, p.len)
+	for i := 0; i < p.len; i++ {
+		l[i] = p.trail[i]
+	}
+	return l
+}
+
+func (p *Trail) Clear() {
+	p.len = 0
+}
+
+func (p *Trail) Push(n NodeI) bool {
+	if p.len < p.size {
+		p.trail[p.len] = &n
+		p.len++
+		return true
+	}
+	return false
+}
+
+func (p *Trail) Pop() NodeI {
+	if p.len == 0 {
+		return nil
+	}
+	p.len--
+	return *p.trail[p.len]
+}
+
+func (p *Trail) String() string {
+	var sb strings.Builder
+	for i, v := range p.GetList() {
+		sb.WriteString((*v).GetName())
+		if i < p.len-1 {
+			sb.WriteString(p.delim)
+		}
+	}
+	return sb.String()
+}
+
 type Path struct {
 	path  []string
 	delim string

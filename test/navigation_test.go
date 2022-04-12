@@ -7,21 +7,22 @@ import (
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
-func TestWalkNodeTreeForPath3(t *testing.T) {
+func TestWalkNodeTreeForTrail3(t *testing.T) {
 	root := InitParser(t, "", obj3)
 	testWNTFP(t, root, parser.NewBarPath("address|business"))
 	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|number"))
 	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|no"))
 }
-func TestWalkNodeTreeForPath4(t *testing.T) {
-	root := InitParser(t, "", obj4)
-	testWNTFP(t, root, parser.NewBarPath("list1|lastName"))
-	testWNTFP(t, root, parser.NewBarPath("list1||A"))
-	testWNTFP(t, root, parser.NewBarPath("list1||list3"))
-}
+
+// func TestWalkNodeTreeForTrail4(t *testing.T) {
+// 	root := InitParser(t, "", obj4)
+// 	testWNTFP(t, root, parser.NewBarPath("list1||list3"))
+// 	testWNTFP(t, root, parser.NewBarPath("list1|lastName"))
+// 	testWNTFP(t, root, parser.NewBarPath("list1||A"))
+// }
 
 func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path) {
-	p, ok := parser.WalkNodeTreeForNodes(root, func(nodes []*parser.NodeI, index int) bool {
+	p, ok := parser.WalkNodeTreeForTrail(root, func(nodes []*parser.NodeI, index int) bool {
 		s := stringWNTFP(nodes, req.GetDelim())
 		if s == req.String() {
 			return true
@@ -47,6 +48,63 @@ func stringWNTFP(nl []*parser.NodeI, delim string) string {
 		}
 	}
 	return sb.String()
+}
+
+func TestNoCopyOnFind(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	n := parser.NewJsonString("Name", "Fred")
+	if n.GetName() != "Name" {
+		t.Errorf("Node must be the Name node")
+	}
+	if n.String() != "Fred" {
+		t.Errorf("Node must be the 'Name' node with value 'Fred'")
+	}
+	// add it and find it again!
+	root.Add(n)
+	nf, err := parser.Find(root, parser.NewDotPath("Name"))
+	if err != nil {
+		t.Errorf("Node 'Name' not found")
+	}
+	if nf.GetName() != "Name" {
+		t.Errorf("Node must be the 'Name' node")
+	}
+	if nf.String() != "Fred" {
+		t.Errorf("Node must be the 'Name' node with value 'Fred'")
+	}
+
+	// Chage value of original node
+	n.SetValue("Freda")
+	if n.GetName() != "Name" {
+		t.Errorf("Node must be the Name node")
+	}
+	if n.String() != "Freda" {
+		t.Errorf("Node must be the 'Name' node with value 'Freda'")
+	}
+	if nf.GetName() != "Name" {
+		t.Errorf("Node must be the 'Name' node")
+	}
+	if nf.String() != "Freda" {
+		t.Errorf("Node must be the 'Name' node with value 'Freda'")
+	}
+
+	nf2, err2 := parser.Find(root, parser.NewDotPath("Name"))
+	if err2 != nil {
+		t.Errorf("Node 'Name' not found")
+	}
+	if nf2.GetName() != "Name" {
+		t.Errorf("Node must be the Name node")
+	}
+	if nf2.String() != "Freda" {
+		t.Errorf("Node must be the Name node with value Freda")
+	}
+
+	nf2.(*parser.JsonString).SetValue("Boggle")
+	if n.GetName() != "Name" {
+		t.Errorf("Node must be the Name node")
+	}
+	if n.String() != "Boggle" {
+		t.Errorf("Node must be the Name node with value Boggle")
+	}
 }
 
 func TestWalkNodesUntillFound(t *testing.T) {

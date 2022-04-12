@@ -7,6 +7,204 @@ import (
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
+func TestTrailString(t *testing.T) {
+	root := InitParser(t, "", obj4)
+	sa, _ := parser.Find(root, parser.NewDotPath("list1.0"))
+	ln, _ := parser.Find(root, parser.NewDotPath("list1.lastName"))
+	aa, _ := parser.Find(root, parser.NewDotPath("list1.3.A"))
+	trail := parser.NewTrail(4, "|")
+	if trail.String() != "" {
+		t.Errorf("Empty Trail empty string")
+	}
+	trail.Push(sa)
+	if trail.String() != "" {
+		t.Errorf("Empty because sa has no name")
+	}
+	l := trail.GetList()
+	if len(l) != 1 {
+		t.Errorf("List should be 1 long")
+	}
+	if (*l[0]).String() != "Joe" {
+		t.Errorf("Emprt node retirned ion list shoule have value Joe")
+	}
+	trail.Clear()
+	trail.Push(ln)
+	if trail.String() != "lastName" {
+		t.Errorf("String should be 'lastname' == '%s'", trail.String())
+	}
+	trail.Push(sa)
+	if trail.String() != "lastName|" {
+		t.Errorf("lastname + (no name) == '%s'", trail.String())
+	}
+	trail.Push(aa)
+	if trail.String() != "lastName||A" {
+		t.Errorf("lastname + (no name) + A == '%s'", trail.String())
+	}
+}
+
+func TestTrailClear(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	trail := parser.NewTrail(2, "|")
+	sa, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
+	ln, _ := parser.Find(root, parser.NewDotPath("lastName"))
+	trail.Push(sa)
+	trail.Push(ln)
+	l := trail.GetList()
+	if len(l) != 2 {
+		t.Errorf("List should be 2 long")
+	}
+	trail.Clear()
+	ll := trail.GetList()
+	if len(ll) != 0 {
+		t.Errorf("List should be 0 long")
+	}
+}
+
+func TestTrailList(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	trail := parser.NewTrail(2, "|")
+	sa, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
+	ln, _ := parser.Find(root, parser.NewDotPath("lastName"))
+	trail.Push(sa)
+	trail.Push(ln)
+	l := trail.GetList()
+	if len(l) != 2 {
+		t.Errorf("List should be 2 long")
+	}
+	l0 := *l[0]
+	l1 := *l[1]
+	if sa.String() != l0.String() {
+		t.Errorf("List [0] should be sa")
+	}
+	if ln.String() != l1.String() {
+		t.Errorf("List [1] should be ln")
+	}
+	l1.(*parser.JsonString).SetValue("HOCK")
+	if l1.String() != "HOCK" {
+		t.Errorf("ln is same as l1 so value should be same")
+	}
+	if ln.String() != "HOCK" {
+		t.Errorf("ln is same as l1 so value should be same")
+	}
+	sa.(*parser.JsonString).SetValue("999")
+	if sa.String() != "999" {
+		t.Errorf("sa is same as l0 so value should be same")
+	}
+	if l0.String() != "999" {
+		t.Errorf("ln is same as l1 so value should be same")
+	}
+	trail.Pop()
+	ll := trail.GetList()
+	if len(ll) != 1 {
+		t.Errorf("List should be 1 long")
+	}
+	ll0 := *ll[0]
+	if ll0 != l0 {
+		t.Errorf("Should be the same object")
+	}
+	if ll0 != sa {
+		t.Errorf("Should be the same object")
+	}
+	trail.Pop()
+	lll := trail.GetList()
+	if len(lll) != 0 {
+		t.Errorf("List should be empty")
+	}
+	if len(ll) != 1 {
+		t.Errorf("List should be 1 long")
+	}
+	if len(l) != 2 {
+		t.Errorf("List should be 2 long")
+	}
+}
+
+func TestTrailPop(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	trail := parser.NewTrail(2, "|")
+	sa, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
+	ln, _ := parser.Find(root, parser.NewDotPath("lastName"))
+	trail.Push(ln)
+	trail.Push(sa)
+
+	if ln.String() != "Jackson" {
+		t.Errorf("Eat my hat!")
+	}
+	if sa.String() != "101" {
+		t.Errorf("Eat my hat!")
+	}
+	sa.(*parser.JsonString).SetValue("999")
+	sax := trail.Pop()
+	if sa.String() != "999" {
+		t.Errorf("Eat my hat!")
+	}
+	if sax.String() != "999" {
+		t.Errorf("Not the same object!!")
+	}
+	sax.(*parser.JsonString).SetValue("888")
+	if sax.String() != "888" {
+		t.Errorf("Eat my hat!")
+	}
+	if sa.String() != "888" {
+		t.Errorf("Not the same object!!")
+	}
+	lnx := trail.Pop()
+	if lnx == nil {
+		t.Errorf("Adderss should not be nil")
+	}
+	if lnx.String() != "Jackson" {
+		t.Errorf("Eat my hat!")
+	}
+}
+
+func TestTrailPush(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	trail := parser.NewTrail(2, "|")
+	n1, _ := parser.Find(root, parser.NewDotPath("firstName"))
+	n2, _ := parser.Find(root, parser.NewDotPath("address"))
+	n3, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
+	if trail.Pop() != nil {
+		t.Errorf("Trail should pop nil if empty")
+	}
+	if len(trail.GetList()) != 0 {
+		t.Errorf("Trail list should be empty")
+	}
+	ok := trail.Push(n1)
+	if !ok {
+		t.Errorf("Push should return true")
+	}
+	if len(trail.GetList()) != 1 {
+		t.Errorf("Trail list should contain 1 item")
+	}
+	n := trail.GetList()[0]
+	if *n != n1 {
+		t.Errorf("Trail node should be the same node")
+	}
+
+	ok = trail.Push(n2)
+	if !ok {
+		t.Errorf("Push should return true")
+	}
+	if len(trail.GetList()) != 2 {
+		t.Errorf("Trail list should contain 2 items")
+	}
+	n = trail.GetList()[1]
+	if *n != n2 {
+		t.Errorf("Trail node should equal node 2 from tree")
+	}
+
+	ok = trail.Push(n3)
+	if ok {
+		t.Errorf("Trail list should not have any more room")
+	}
+	if len(trail.GetList()) != 2 {
+		t.Errorf("Trail list should contain 2 items")
+	}
+	n = trail.GetList()[1]
+	if *n != n2 {
+		t.Errorf("Trail node should equal node 2 from tree")
+	}
+}
+
 func TestEqual(t *testing.T) {
 	p := parser.NewBarPath("a|b|c")
 	pp := parser.NewBarPath("a|b|c")

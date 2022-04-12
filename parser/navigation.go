@@ -68,7 +68,7 @@ func visitFindParentNode(node, parent, target NodeI) bool {
 	return node == target
 }
 
-func WalkNodeTreeForNodes(root NodeC, visitWithPath func([]*NodeI, int) bool) ([]*NodeI, bool) {
+func WalkNodeTreeForTrail(root NodeC, visitWithPath func([]*NodeI, int) bool) ([]*NodeI, bool) {
 	n := make([]*NodeI, 10)
 	i := walkNodeTreeForPaths(root, n, 0, visitWithPath)
 	if i < 0 {
