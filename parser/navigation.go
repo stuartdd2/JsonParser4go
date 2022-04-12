@@ -79,9 +79,16 @@ func WalkNodeTreeForTrail(root NodeC, visitWithTrail func(*Trail, int) bool) (*T
 
 func walkNodeTreeForPaths(node NodeC, trail *Trail, dep int, visitWithTrail func(*Trail, int) bool) int {
 	for i, v := range node.GetValues() {
-		trail.Push(v)
-		if visitWithTrail(trail, i) {
-			return dep
+		if node.GetNodeType() == NT_LIST {
+			trail.Push(v, i)
+			if visitWithTrail(trail, i) {
+				return dep
+			}
+		} else {
+			trail.Push(v, -i)
+			if visitWithTrail(trail, -1) {
+				return dep
+			}
 		}
 		if v.IsContainer() {
 			return walkNodeTreeForPaths(v.(NodeC), trail, dep+1, visitWithTrail)

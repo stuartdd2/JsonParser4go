@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -18,20 +17,18 @@ func TestWalkNodeTreeForTrail3(t *testing.T) {
 func TestWalkNodeTreeForTrail4(t *testing.T) {
 	root := InitParser(t, "", obj4)
 	testWNTFP(t, root, parser.NewBarPath("list1||list3|2"), "20")
-	testWNTFP(t, root, parser.NewBarPath("list1|lastName"), "Jackson")
-	testWNTFP(t, root, parser.NewBarPath("list1||A"), "10")
+	// testWNTFP(t, root, parser.NewBarPath("list1|lastName"), "Jackson")
+	//testWNTFP(t, root, parser.NewBarPath("list1|3|A"), "10")
 }
 
 func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path, val string) {
 	trail, ok := parser.WalkNodeTreeForTrail(root, func(trail *parser.Trail, index int) bool {
 		s := trail.String()
 		if s == req.String() {
+			t.Errorf("WalkNodeTreeForPath: HIT  %s == %s", s, req.String())
 			return true
 		}
-		s = fmt.Sprintf("%s%d", s, index)
-		if s == req.String() {
-			return true
-		}
+		t.Errorf("WalkNodeTreeForPath: MISS %s == %s", s, req.String())
 		return false
 	})
 	if !ok {

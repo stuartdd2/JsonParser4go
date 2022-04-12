@@ -17,6 +17,7 @@
 package parser
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -26,13 +27,14 @@ var (
 
 type Trail struct {
 	trail []*NodeI
+	index []int
 	len   int
 	size  int
 	delim string
 }
 
 func NewTrail(size int, delim string) *Trail {
-	return &Trail{trail: make([]*NodeI, size), len: 0, size: size, delim: delim}
+	return &Trail{trail: make([]*NodeI, size), index: make([]int, size), len: 0, size: size, delim: delim}
 }
 
 func (p *Trail) GetList() []*NodeI {
@@ -50,6 +52,10 @@ func (p *Trail) GetLast() NodeI {
 	return *p.trail[p.len-1]
 }
 
+func (p *Trail) GetIndex(i int) int {
+	return p.index[i]
+}
+
 func (p *Trail) SetDelim(delim string) {
 	p.delim = delim
 }
@@ -62,27 +68,36 @@ func (p *Trail) Clear() {
 	p.len = 0
 }
 
-func (p *Trail) Push(n NodeI) bool {
+func (p *Trail) Push(n NodeI, index int) bool {
 	if p.len < p.size {
 		p.trail[p.len] = &n
+		p.index[p.len] = index
 		p.len++
 		return true
 	}
 	return false
 }
 
-func (p *Trail) Pop() NodeI {
+func (p *Trail) Pop() (NodeI, int) {
 	if p.len == 0 {
-		return nil
+		return nil, -1
 	}
 	p.len--
-	return *p.trail[p.len]
+	return *p.trail[p.len], p.index[p.len]
 }
 
 func (p *Trail) String() string {
 	var sb strings.Builder
 	for i, v := range p.GetList() {
-		sb.WriteString((*v).GetName())
+		name := (*v).GetName()
+		if name != "" {
+			sb.WriteString((*v).GetName())
+		} else {
+			ind := p.GetIndex(i)
+			if ind > 0 {
+				sb.WriteString(fmt.Sprintf("%d", ind))
+			}
+		}
 		if i < p.len-1 {
 			sb.WriteString(p.GetDelim())
 		}

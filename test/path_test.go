@@ -16,7 +16,7 @@ func TestTrailString(t *testing.T) {
 	if trail.String() != "" {
 		t.Errorf("Empty Trail empty string")
 	}
-	trail.Push(sa)
+	trail.Push(sa, 0)
 	if trail.String() != "" {
 		t.Errorf("Empty because sa has no name")
 	}
@@ -28,16 +28,16 @@ func TestTrailString(t *testing.T) {
 		t.Errorf("Emprt node retirned ion list shoule have value Joe")
 	}
 	trail.Clear()
-	trail.Push(ln)
+	trail.Push(ln, 1)
 	if trail.String() != "lastName" {
 		t.Errorf("String should be 'lastname' == '%s'", trail.String())
 	}
-	trail.Push(sa)
-	if trail.String() != "lastName|" {
+	trail.Push(sa, 2)
+	if trail.String() != "lastName|2" {
 		t.Errorf("lastname + (no name) == '%s'", trail.String())
 	}
-	trail.Push(aa)
-	if trail.String() != "lastName||A" {
+	trail.Push(aa, 4)
+	if trail.String() != "lastName|2|A" {
 		t.Errorf("lastname + (no name) + A == '%s'", trail.String())
 	}
 }
@@ -47,8 +47,8 @@ func TestTrailClear(t *testing.T) {
 	trail := parser.NewTrail(2, "|")
 	sa, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
 	ln, _ := parser.Find(root, parser.NewDotPath("lastName"))
-	trail.Push(sa)
-	trail.Push(ln)
+	trail.Push(sa, 0)
+	trail.Push(ln, 1)
 	l := trail.GetList()
 	if len(l) != 2 {
 		t.Errorf("List should be 2 long")
@@ -65,8 +65,8 @@ func TestTrailList(t *testing.T) {
 	trail := parser.NewTrail(2, "|")
 	sa, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
 	ln, _ := parser.Find(root, parser.NewDotPath("lastName"))
-	trail.Push(sa)
-	trail.Push(ln)
+	trail.Push(sa, 0)
+	trail.Push(ln, 1)
 	l := trail.GetList()
 	if len(l) != 2 {
 		t.Errorf("List should be 2 long")
@@ -123,8 +123,8 @@ func TestTrailPop(t *testing.T) {
 	trail := parser.NewTrail(2, "|")
 	sa, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
 	ln, _ := parser.Find(root, parser.NewDotPath("lastName"))
-	trail.Push(ln)
-	trail.Push(sa)
+	trail.Push(ln, 0)
+	trail.Push(sa, 1)
 
 	if ln.String() != "Jackson" {
 		t.Errorf("Eat my hat!")
@@ -133,7 +133,7 @@ func TestTrailPop(t *testing.T) {
 		t.Errorf("Eat my hat!")
 	}
 	sa.(*parser.JsonString).SetValue("999")
-	sax := trail.Pop()
+	sax, _ := trail.Pop()
 	if sa.String() != "999" {
 		t.Errorf("Eat my hat!")
 	}
@@ -147,7 +147,7 @@ func TestTrailPop(t *testing.T) {
 	if sa.String() != "888" {
 		t.Errorf("Not the same object!!")
 	}
-	lnx := trail.Pop()
+	lnx, _ := trail.Pop()
 	if lnx == nil {
 		t.Errorf("Adderss should not be nil")
 	}
@@ -162,13 +162,14 @@ func TestTrailPush(t *testing.T) {
 	n1, _ := parser.Find(root, parser.NewDotPath("firstName"))
 	n2, _ := parser.Find(root, parser.NewDotPath("address"))
 	n3, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
-	if trail.Pop() != nil {
+	pop, _ := trail.Pop()
+	if pop != nil {
 		t.Errorf("Trail should pop nil if empty")
 	}
 	if len(trail.GetList()) != 0 {
 		t.Errorf("Trail list should be empty")
 	}
-	ok := trail.Push(n1)
+	ok := trail.Push(n1, 1)
 	if !ok {
 		t.Errorf("Push should return true")
 	}
@@ -180,7 +181,7 @@ func TestTrailPush(t *testing.T) {
 		t.Errorf("Trail node should be the same node")
 	}
 
-	ok = trail.Push(n2)
+	ok = trail.Push(n2, 4)
 	if !ok {
 		t.Errorf("Push should return true")
 	}
@@ -192,7 +193,7 @@ func TestTrailPush(t *testing.T) {
 		t.Errorf("Trail node should equal node 2 from tree")
 	}
 
-	ok = trail.Push(n3)
+	ok = trail.Push(n3, 5)
 	if ok {
 		t.Errorf("Trail list should not have any more room")
 	}
