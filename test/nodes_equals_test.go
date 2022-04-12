@@ -116,8 +116,6 @@ func TestEqualObject(t *testing.T) {
 	if !na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
-	t.Errorf("%s\n", na.JsonValue())
-	t.Errorf("%s\n", nb.JsonValue())
 
 }
 func TestEqualList(t *testing.T) {

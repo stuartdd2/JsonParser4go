@@ -84,13 +84,21 @@ func (p *Path) Equal(anyPath *Path) bool {
 	return false
 }
 
-func (p *Path) PathAppend(p2 *Path) *Path {
-	return &Path{path: append(p.path, p2.path...), delim: p.delim}
+func (p *Path) PathAppend(p2 *Path) {
+	p.path = append(p.path, p2.path...)
 }
 
-func (p *Path) StringAppend(s string) *Path {
+func (p *Path) BackToFront() *Path {
+	rp := NewPath("", p.delim)
+	for i := len(p.path) - 1; i >= 0; i-- {
+		rp.path = append(rp.path, p.path[i])
+	}
+	return rp
+}
+
+func (p *Path) StringAppend(s string) {
 	sPath := NewPath(s, p.delim)
-	return &Path{path: append(p.path, sPath.path...), delim: p.delim}
+	p.path = append(p.path, sPath.path...)
 }
 
 func (p *Path) Paths() []string {

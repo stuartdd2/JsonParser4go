@@ -63,8 +63,8 @@ func TestStringFirst(t *testing.T) {
 func TestStringAppend(t *testing.T) {
 	p1 := parser.NewPath("a|b|c", "|")
 	testPath(t, 2, p1, "a|b|c", "c", "|", 3)
-	p3 := p1.StringAppend("1|2")
-	testPath(t, 2, p3, "a|b|c|1|2", "2", "|", 5)
+	p1.StringAppend("1|2")
+	testPath(t, 2, p1, "a|b|c|1|2", "2", "|", 5)
 }
 
 func TestPathAppend(t *testing.T) {
@@ -72,16 +72,16 @@ func TestPathAppend(t *testing.T) {
 	testPath(t, 2, p1, "a|b|c", "c", "|", 3)
 	p2 := parser.NewPath("1|2", "|")
 	testPath(t, 2, p2, "1|2", "2", "|", 2)
-	p3 := p1.PathAppend(p2)
-	testPath(t, 2, p3, "a|b|c|1|2", "2", "|", 5)
-	testPath(t, 2, p1, "a|b|c", "c", "|", 3)
+	p1.PathAppend(p2)
+	testPath(t, 2, p1, "a|b|c|1|2", "2", "|", 5)
 	testPath(t, 2, p2, "1|2", "2", "|", 2)
+
 	p4 := parser.NewPath("", "|")
 	testEmpty(t, 1, p4, "|")
-	p5 := p2.PathAppend(p4)
-	testPath(t, 2, p5, "1|2", "2", "|", 2)
-	p6 := p4.PathAppend(p1)
-	testPath(t, 2, p6, "a|b|c", "c", "|", 3)
+	p2.PathAppend(p4)
+	testPath(t, 2, p2, "1|2", "2", "|", 2)
+	p4.PathAppend(p1)
+	testPath(t, 2, p4, "a|b|c|1|2", "2", "|", 5)
 }
 func TestPathLast(t *testing.T) {
 	p := parser.NewPath("a|b|c", "|")
