@@ -1,11 +1,28 @@
 package test
 
 import (
+	"bytes"
+	"fmt"
+	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
+
+func rLog(s string) {
+	http.Post("http://localhost:9998/log", "text/plain", bytes.NewBufferString(time.Now().Format("15:04:05.000 ")+s))
+}
+
+func rLogH(s string) {
+	rLog(fmt.Sprintf("\n***\n*** Run Test %s\n***", s))
+}
+
+func rLogE(t *testing.T, s string) {
+	rLog(s)
+	t.Errorf(s)
+}
 
 func TestWalkNodeTreeForTrail3(t *testing.T) {
 	root := InitParser(t, "", obj3)
@@ -15,6 +32,7 @@ func TestWalkNodeTreeForTrail3(t *testing.T) {
 }
 
 func TestWalkNodeTreeForTrail4(t *testing.T) {
+	rLogH(" TestWalkNodeTreeForTrail")
 	root := InitParser(t, "", obj4)
 	testWNTFP(t, root, parser.NewBarPath("list1||list3|2"), "20")
 	// testWNTFP(t, root, parser.NewBarPath("list1|lastName"), "Jackson")
@@ -25,19 +43,19 @@ func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path, val string) {
 	trail, ok := parser.WalkNodeTreeForTrail(root, func(trail *parser.Trail, index int) bool {
 		s := trail.String()
 		if s == req.String() {
-			t.Errorf("WalkNodeTreeForPath: HIT  %s == %s", s, req.String())
+			rLog(fmt.Sprintf("HIT  %s == %s", s, req.String()))
 			return true
 		}
-		t.Errorf("WalkNodeTreeForPath: MISS %s == %s", s, req.String())
+		rLog(fmt.Sprintf("MISS %s == %s", s, req.String()))
 		return false
 	})
 	if !ok {
-		t.Errorf("WalkNodeTreeForPath: could not find %s", req.String())
+		rLogE(t, fmt.Sprintf("WalkNodeTreeForPath: could not find %s", req.String()))
 		return
 	}
 	v := trail.GetLast()
 	if v.String() != val && val != "*" {
-		t.Errorf("WalkNodeTreeForPath: incorrect value returned for last node name [%s]. '%s' != '%s'", v.GetName(), v.String(), val)
+		rLogE(t, fmt.Sprintf("WalkNodeTreeForPath: incorrect value returned for last node name [%s]. '%s' != '%s'", v.GetName(), v.String(), val))
 	}
 }
 
