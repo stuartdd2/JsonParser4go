@@ -25,6 +25,7 @@ func rLogE(t *testing.T, s string) {
 }
 
 func TestWalkNodeTreeForTrail3(t *testing.T) {
+	rLogH(" TestWalkNodeTreeForTrail3")
 	root := InitParser(t, "", obj3)
 	testWNTFP(t, root, parser.NewBarPath("address|business"), "true")
 	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|number"), "7349282382")
@@ -34,9 +35,9 @@ func TestWalkNodeTreeForTrail3(t *testing.T) {
 func TestWalkNodeTreeForTrail4(t *testing.T) {
 	rLogH(" TestWalkNodeTreeForTrail")
 	root := InitParser(t, "", obj4)
-	testWNTFP(t, root, parser.NewBarPath("list1||list3|2"), "20")
-	// testWNTFP(t, root, parser.NewBarPath("list1|lastName"), "Jackson")
-	//testWNTFP(t, root, parser.NewBarPath("list1|3|A"), "10")
+	testWNTFP(t, root, parser.NewBarPath("list1|3|list3|2"), "20")
+	testWNTFP(t, root, parser.NewBarPath("list1|lastName"), "Jackson")
+	testWNTFP(t, root, parser.NewBarPath("list1|3|A"), "10")
 }
 
 func testWNTFP(t *testing.T, root parser.NodeC, req *parser.Path, val string) {
