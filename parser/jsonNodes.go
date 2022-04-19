@@ -495,7 +495,7 @@ func CreateAndReturnNodeAtPath(root NodeI, path *Path, nodeType NodeType) (NodeI
 		return ret, nil
 	}
 
-	for _, nn := range rootPath.Paths() {
+	for _, nn := range rootPath.path {
 		n := cNode.GetNodeWithName(nn)
 		if n == nil {
 			n = NewJsonObject(nn)
@@ -575,7 +575,7 @@ func Clone(n NodeI, newName string, cloneLeafNodeData bool) NodeI {
 
 func Rename(root, node NodeI, newName string) error {
 	if node.GetName() == "" {
-		return fmt.Errorf("cannot rename. This node has no name!")
+		return fmt.Errorf("cannot rename. This node has no name")
 	}
 	parentNode, found := FindParentNode(root, node)
 	if found {

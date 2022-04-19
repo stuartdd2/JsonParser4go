@@ -20,11 +20,10 @@ func TestTrailString(t *testing.T) {
 	if trail.String() != "" {
 		t.Errorf("Empty because sa has no name")
 	}
-	l := trail.GetList()
-	if len(l) != 1 {
+	if trail.Len() != 1 {
 		t.Errorf("List should be 1 long")
 	}
-	if (*l[0]).String() != "Joe" {
+	if trail.GetLast().String() != "Joe" {
 		t.Errorf("Emprt node retirned ion list shoule have value Joe")
 	}
 	trail.Clear()
@@ -49,35 +48,32 @@ func TestTrailClear(t *testing.T) {
 	ln, _ := parser.Find(root, parser.NewDotPath("lastName"))
 	trail.Push(sa, 0)
 	trail.Push(ln, 1)
-	l := trail.GetList()
-	if len(l) != 2 {
+	if trail.Len() != 2 {
 		t.Errorf("List should be 2 long")
 	}
 	trail.Clear()
-	ll := trail.GetList()
-	if len(ll) != 0 {
+	if trail.Len() != 0 {
 		t.Errorf("List should be 0 long")
 	}
 }
 
-func TestTrailList(t *testing.T) {
+func TestTrail(t *testing.T) {
 	root := InitParser(t, "", obj3)
 	trail := parser.NewTrail(2, "|")
 	sa, _ := parser.Find(root, parser.NewDotPath("address.streetAddress"))
 	ln, _ := parser.Find(root, parser.NewDotPath("lastName"))
 	trail.Push(sa, 0)
 	trail.Push(ln, 1)
-	l := trail.GetList()
-	if len(l) != 2 {
+	if trail.Len() != 2 {
 		t.Errorf("List should be 2 long")
 	}
-	l0 := *l[0]
-	l1 := *l[1]
+	l0 := trail.GetNodeAt(0)
+	l1 := trail.GetNodeAt(1)
 	if sa.String() != l0.String() {
-		t.Errorf("List [0] should be sa")
+		t.Errorf("node at 0 should be sa")
 	}
 	if ln.String() != l1.String() {
-		t.Errorf("List [1] should be ln")
+		t.Errorf("node at 1 should be ln")
 	}
 	l1.(*parser.JsonString).SetValue("HOCK")
 	if l1.String() != "HOCK" {
@@ -94,11 +90,10 @@ func TestTrailList(t *testing.T) {
 		t.Errorf("ln is same as l1 so value should be same")
 	}
 	trail.Pop()
-	ll := trail.GetList()
-	if len(ll) != 1 {
+	if trail.Len() != 1 {
 		t.Errorf("List should be 1 long")
 	}
-	ll0 := *ll[0]
+	ll0 := trail.GetNodeAt(0)
 	if ll0 != l0 {
 		t.Errorf("Should be the same object")
 	}
@@ -106,15 +101,8 @@ func TestTrailList(t *testing.T) {
 		t.Errorf("Should be the same object")
 	}
 	trail.Pop()
-	lll := trail.GetList()
-	if len(lll) != 0 {
+	if trail.Len() != 0 {
 		t.Errorf("List should be empty")
-	}
-	if len(ll) != 1 {
-		t.Errorf("List should be 1 long")
-	}
-	if len(l) != 2 {
-		t.Errorf("List should be 2 long")
 	}
 }
 
@@ -166,18 +154,18 @@ func TestTrailPush(t *testing.T) {
 	if pop != nil {
 		t.Errorf("Trail should pop nil if empty")
 	}
-	if len(trail.GetList()) != 0 {
+	if trail.Len() != 0 {
 		t.Errorf("Trail list should be empty")
 	}
 	ok := trail.Push(n1, 1)
 	if !ok {
 		t.Errorf("Push should return true")
 	}
-	if len(trail.GetList()) != 1 {
+	if trail.Len() != 1 {
 		t.Errorf("Trail list should contain 1 item")
 	}
-	n := trail.GetList()[0]
-	if *n != n1 {
+	n := trail.GetNodeAt(0)
+	if n != n1 {
 		t.Errorf("Trail node should be the same node")
 	}
 
@@ -185,11 +173,11 @@ func TestTrailPush(t *testing.T) {
 	if !ok {
 		t.Errorf("Push should return true")
 	}
-	if len(trail.GetList()) != 2 {
+	if trail.Len() != 2 {
 		t.Errorf("Trail list should contain 2 items")
 	}
-	n = trail.GetList()[1]
-	if *n != n2 {
+	n = trail.GetNodeAt(1)
+	if n != n2 {
 		t.Errorf("Trail node should equal node 2 from tree")
 	}
 
@@ -197,11 +185,11 @@ func TestTrailPush(t *testing.T) {
 	if ok {
 		t.Errorf("Trail list should not have any more room")
 	}
-	if len(trail.GetList()) != 2 {
+	if trail.Len() != 2 {
 		t.Errorf("Trail list should contain 2 items")
 	}
-	n = trail.GetList()[1]
-	if *n != n2 {
+	n = trail.GetNodeAt(1)
+	if n != n2 {
 		t.Errorf("Trail node should equal node 2 from tree")
 	}
 }
@@ -262,8 +250,8 @@ func TestStringFirst(t *testing.T) {
 func TestStringAppend(t *testing.T) {
 	p1 := parser.NewPath("a|b|c", "|")
 	testPath(t, 2, p1, "a|b|c", "c", "|", 3)
-	p1.StringAppend("1|2")
-	testPath(t, 2, p1, "a|b|c|1|2", "2", "|", 5)
+	p2 := p1.StringAppend("1|2")
+	testPath(t, 2, p2, "a|b|c|1|2", "2", "|", 5)
 }
 
 func TestPathAppend(t *testing.T) {
@@ -271,16 +259,16 @@ func TestPathAppend(t *testing.T) {
 	testPath(t, 2, p1, "a|b|c", "c", "|", 3)
 	p2 := parser.NewPath("1|2", "|")
 	testPath(t, 2, p2, "1|2", "2", "|", 2)
-	p1.PathAppend(p2)
-	testPath(t, 2, p1, "a|b|c|1|2", "2", "|", 5)
+	p3 := p1.PathAppend(p2)
+	testPath(t, 2, p3, "a|b|c|1|2", "2", "|", 5)
 	testPath(t, 2, p2, "1|2", "2", "|", 2)
 
 	p4 := parser.NewPath("", "|")
 	testEmpty(t, 1, p4, "|")
-	p2.PathAppend(p4)
-	testPath(t, 2, p2, "1|2", "2", "|", 2)
-	p4.PathAppend(p1)
-	testPath(t, 2, p4, "a|b|c|1|2", "2", "|", 5)
+	p2x := p2.PathAppend(p4)
+	testPath(t, 2, p2x, "1|2", "2", "|", 2)
+	p4x := p1.PathAppend(p2)
+	testPath(t, 2, p4x, "a|b|c|1|2", "2", "|", 5)
 }
 func TestPathLast(t *testing.T) {
 	p := parser.NewPath("a|b|c", "|")
@@ -302,6 +290,7 @@ func TestPathLast(t *testing.T) {
 	testEmpty(t, 11, p.PathLast(0), "|")
 	testEmpty(t, 12, p.PathLast(1), "|")
 }
+
 func TestPathFirst(t *testing.T) {
 	p := parser.NewPath("a|b|c", "|")
 	testEmpty(t, 1, p.PathFirst(0), "|")
@@ -380,7 +369,7 @@ func testPath(t *testing.T, id int, p *parser.Path, str, last, delim string, len
 		return
 	}
 	if p.StringLast() != last {
-		t.Errorf("%d Path path GetLast() '%s' is not '%s'", id, p.StringLast(), last)
+		t.Errorf("%d Path path StringLast() '%s' is not '%s'", id, p.StringLast(), last)
 		return
 	}
 	if p.String() != str {
@@ -407,9 +396,6 @@ func testEmpty(t *testing.T, id int, p *parser.Path, delim string) {
 	}
 	if p.Len() != 0 {
 		t.Errorf("%d Empty path Len did not return 0", id)
-	}
-	if len(p.Paths()) != 0 {
-		t.Errorf("%d Empty path Paths len did not return 0", id)
 	}
 	if !p.PathParent().IsEmpty() {
 		t.Errorf("%d Empty path PathParent IsEmpty did not return true", id)

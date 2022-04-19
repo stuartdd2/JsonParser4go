@@ -37,14 +37,6 @@ func NewTrail(size int, delim string) *Trail {
 	return &Trail{trail: make([]*NodeI, size), index: make([]int, size), len: 0, size: size, delim: delim}
 }
 
-func (p *Trail) GetList() []*NodeI {
-	l := make([]*NodeI, p.len)
-	for i := 0; i < p.len; i++ {
-		l[i] = p.trail[i]
-	}
-	return l
-}
-
 func (p *Trail) GetLast() NodeI {
 	if p.len == 0 {
 		return nil
@@ -52,7 +44,21 @@ func (p *Trail) GetLast() NodeI {
 	return *p.trail[p.len-1]
 }
 
-func (p *Trail) GetIndex(i int) int {
+func (p *Trail) GetNodeAt(i int) NodeI {
+	if p.len == 0 {
+		return nil
+	}
+	return *p.trail[i]
+}
+
+func (p *Trail) Len() int {
+	return p.len
+}
+
+func (p *Trail) GetIndexAt(i int) int {
+	if p.len == 0 {
+		return -1
+	}
 	return p.index[i]
 }
 
@@ -88,12 +94,12 @@ func (p *Trail) Pop() (NodeI, int) {
 
 func (p *Trail) String() string {
 	var sb strings.Builder
-	for i, v := range p.GetList() {
-		name := (*v).GetName()
+	for i := 0; i < p.len; i++ {
+		name := p.GetNodeAt(i).GetName()
 		if name != "" {
-			sb.WriteString((*v).GetName())
+			sb.WriteString(p.GetNodeAt(i).GetName())
 		} else {
-			ind := p.GetIndex(i)
+			ind := p.GetIndexAt(i)
 			if ind > 0 {
 				sb.WriteString(fmt.Sprintf("%d", ind))
 			}
@@ -105,6 +111,10 @@ func (p *Trail) String() string {
 	return sb.String()
 }
 
+//
+// Represent a path as a list of element names.
+//  This mut be immutable
+//
 type Path struct {
 	path  []string
 	delim string
@@ -165,10 +175,6 @@ func (p *Path) Equal(anyPath *Path) bool {
 	return false
 }
 
-func (p *Path) PathAppend(p2 *Path) {
-	p.path = append(p.path, p2.path...)
-}
-
 func (p *Path) BackToFront() *Path {
 	rp := NewPath("", p.delim)
 	for i := len(p.path) - 1; i >= 0; i-- {
@@ -177,15 +183,25 @@ func (p *Path) BackToFront() *Path {
 	return rp
 }
 
-func (p *Path) StringAppend(s string) {
-	sPath := NewPath(s, p.delim)
-	p.path = append(p.path, sPath.path...)
+//
+// Return a neww path appended with the another path
+//
+func (p *Path) PathAppend(p2 *Path) *Path {
+	return &Path{path: append(p.path, p2.path...), delim: p.delim}
 }
 
-func (p *Path) Paths() []string {
-	return p.path
+//
+// Return a neww path appended with the another path as a string
+//
+func (p *Path) StringAppend(s string) *Path {
+	return p.PathAppend(NewPath(s, p.delim))
 }
 
+//
+// Return the first N elements as a new Path
+// The length of the returned path will be N or less if there are
+//   less than N elements in p
+//
 func (p *Path) PathFirst(n int) *Path {
 	if n >= len(p.path) {
 		return &Path{p.path, p.delim}
@@ -196,6 +212,11 @@ func (p *Path) PathFirst(n int) *Path {
 	return &Path{p.path[:n], p.delim}
 }
 
+//
+// Return the last N elements as a new Path
+// The length of the returned path will be N or less if there are
+//   less than N elements in p
+//
 func (p *Path) PathLast(n int) *Path {
 	if n >= len(p.path) {
 		return &Path{p.path, p.delim}
@@ -206,10 +227,16 @@ func (p *Path) PathLast(n int) *Path {
 	return &Path{p.path[len(p.path)-n:], p.delim}
 }
 
+//
+// Return a new Path the last element removed
+//
 func (p *Path) PathParent() *Path {
 	return p.PathFirst(p.Len() - 1)
 }
 
+//
+// Return a new path with a single element at N from the source path
+//
 func (p *Path) PathAt(i int) *Path {
 	return NewPath(p.StringAt(i), p.delim)
 }

@@ -26,7 +26,7 @@ func Find(node NodeI, path *Path) (NodeI, error) {
 	if path.IsEmpty() {
 		return nil, fmt.Errorf("no search paths were resolved. Path provided: '%s'", path)
 	}
-	for _, v := range path.Paths() {
+	for _, v := range path.path {
 		if node.GetNodeType() == NT_LIST {
 			ln := (node.(*JsonList))
 			i, err := strconv.Atoi(v)
