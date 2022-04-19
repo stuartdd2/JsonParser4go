@@ -1,31 +1,39 @@
 package test
 
 import (
-	"bytes"
 	"fmt"
-	"net/http"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
-func rLog(s string) {
-	http.Post("http://localhost:9998/log", "text/plain", bytes.NewBufferString(time.Now().Format("15:04:05.000 ")+s))
-}
-
-func rLogH(s string) {
-	rLog(fmt.Sprintf("\n***\n*** Run Test %s\n***", s))
-}
-
-func rLogE(t *testing.T, s string) {
-	rLog(s)
-	t.Errorf(s)
+func TestWalkWithTrailForFile(t *testing.T) {
+	rLogH("TestWalkWithTrailForFile")
+	root := InitParserFromFile(t, "TestDataTypes.json")
+	groups, _ := parser.Find(root, parser.NewDotPath("groups"))
+	collect := make(map[string]string)
+	var li strings.Builder
+	parser.WalkNodeTreeForTrail(groups.(parser.NodeC), func(trail *parser.Trail, i int) bool {
+		s := trail.String()
+		_, ok := collect[s]
+		if ok {
+			li.WriteString(fmt.Sprintf("Duplicate:%s\n", s))
+		} else {
+			collect[s] = s
+		}
+		return false
+	})
+	if li.Len() > 0 {
+		t.Errorf(li.String())
+	}
+	if len(collect) != 78 {
+		t.Errorf("Should be 78 nodes not %d", len(collect))
+	}
 }
 
 func TestWalkNodeTreeForTrail3(t *testing.T) {
-	rLogH(" TestWalkNodeTreeForTrail3")
+	rLogH("TestWalkNodeTreeForTrail3")
 	root := InitParser(t, "", obj3)
 	testWNTFP(t, root, parser.NewBarPath("address|business"), "true")
 	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|number"), "7349282382")

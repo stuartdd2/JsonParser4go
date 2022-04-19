@@ -92,7 +92,10 @@ func walkNodeTreeForPaths(node NodeC, trail *Trail, dep int, visitWithTrail func
 			}
 		}
 		if v.IsContainer() {
-			return walkNodeTreeForPaths(v.(NodeC), trail, dep+1, visitWithTrail)
+			n := walkNodeTreeForPaths(v.(NodeC), trail, dep+1, visitWithTrail)
+			if n >= 0 {
+				return n
+			}
 		}
 		trail.Pop()
 	}

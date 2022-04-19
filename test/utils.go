@@ -1,9 +1,13 @@
 package test
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
@@ -103,10 +107,39 @@ var (
 	}`)
 )
 
+func rLog(s string) {
+	http.Post("http://localhost:9998/log", "text/plain", bytes.NewBufferString(time.Now().Format("15:04:05.000 ")+s))
+}
+
+func rLogH(s string) {
+	rLog(fmt.Sprintf("\n***\n*** Run Test %s\n***", s))
+}
+
+func rLogE(t *testing.T, s string) {
+	rLog(s)
+	t.Errorf(s)
+}
+
+func InitParserFromFile(t *testing.T, fileName string) parser.NodeC {
+	j, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		if err != nil {
+			t.Errorf("Failed to find file %s. Error %s\n", fileName, err.Error())
+			return nil
+		}
+	}
+	node, err := parser.Parse(j)
+	if err != nil {
+		t.Errorf("Failed to parse file %s. Error %s\n", fileName, err.Error())
+		return nil
+	}
+	return node
+}
+
 func InitParser(t *testing.T, sourceName string, dat []byte) parser.NodeC {
 	node, err := parser.Parse(dat)
 	if err != nil {
-		t.Errorf("Failed to parse file %s. Error %s\n", sourceName, err.Error())
+		t.Errorf("Failed to parse source %s. Error %s\n", sourceName, err.Error())
 		return nil
 	}
 	return node
