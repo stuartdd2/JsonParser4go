@@ -100,7 +100,7 @@ func (p *Trail) String() string {
 			sb.WriteString(p.GetNodeAt(i).GetName())
 		} else {
 			ind := p.GetIndexAt(i)
-			if ind > 0 {
+			if ind >= 0 {
 				sb.WriteString(fmt.Sprintf("%d", ind))
 			}
 		}

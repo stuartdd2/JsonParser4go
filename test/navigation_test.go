@@ -16,6 +16,7 @@ func TestWalkWithTrailForFile(t *testing.T) {
 	var li strings.Builder
 	parser.WalkNodeTreeForTrail(groups.(parser.NodeC), func(trail *parser.Trail, i int) bool {
 		s := trail.String()
+		rLog(s)
 		_, ok := collect[s]
 		if ok {
 			li.WriteString(fmt.Sprintf("Duplicate:%s\n", s))
@@ -41,7 +42,7 @@ func TestWalkNodeTreeForTrail3(t *testing.T) {
 }
 
 func TestWalkNodeTreeForTrail4(t *testing.T) {
-	rLogH(" TestWalkNodeTreeForTrail")
+	rLogH("TestWalkNodeTreeForTrail")
 	root := InitParser(t, "", obj4)
 	testWNTFP(t, root, parser.NewBarPath("list1|3|list3|2"), "20")
 	testWNTFP(t, root, parser.NewBarPath("list1|lastName"), "Jackson")
