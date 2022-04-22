@@ -7,6 +7,57 @@ import (
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
+func TestTrailGetPath(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	fn, _ := parser.Find(root, parser.NewDotPath("firstName"))
+	state, _ := parser.Find(root, parser.NewDotPath("address.state"))
+	bo, _ := parser.Find(root, parser.NewDotPath("bo"))
+	trail := parser.NewTrail(4, "|")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 0, "")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 1, "")
+	trail.Push(fn, -1)
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 1, "firstName")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 2, "firstName")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 3, "firstName")
+	trail.Push(state, -1)
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 1, "firstName")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 2, "firstName|state")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 3, "firstName|state")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 1, 1, "state")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 1, 2, "state")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 1, 3, "state")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 2, 1, "")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 2, 2, "")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 2, 3, "")
+	trail.Push(bo, -1)
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 1, "firstName")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 2, "firstName|state")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 0, 3, "firstName|state|bo")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 1, 1, "state")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 1, 2, "state|bo")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 1, 3, "state|bo")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 2, 1, "bo")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 2, 2, "bo")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 2, 3, "bo")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 3, 0, "")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 3, 1, "")
+	testPathWithIndexes(t, "TestTrailGetPath", trail, 3, 2, "")
+}
+
+func testPathWithIndexes(t *testing.T, info string, p *parser.Trail, st, count uint, s string) {
+	testPathIs(t, info+":WithIndexes[0:0]:", p.GetPath(0, 0, "|"), "")
+	testPathIs(t, info+":WithIndexes[1:0]:", p.GetPath(1, 0, "|"), "")
+	testPathIs(t, info+":WithIndexes[99:0]:", p.GetPath(99, 0, "|"), "")
+	testPathIs(t, info+":WithIndexes[99:0]:", p.GetPath(99, 1, "|"), "")
+	testPathIs(t, info+":WithIndexes[:]:", p.GetPath(st, count, "|"), s)
+}
+
+func testPathIs(t *testing.T, info string, p *parser.Path, s string) {
+	if p.String() != s {
+		t.Fatalf("%sPathIs: Failed. Path '%s' not equal to '%s'", info, p.String(), s)
+	}
+}
+
 func TestTrailString(t *testing.T) {
 	root := InitParser(t, "", obj4)
 	sa, _ := parser.Find(root, parser.NewDotPath("list1.0"))
