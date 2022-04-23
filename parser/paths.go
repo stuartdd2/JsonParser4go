@@ -34,7 +34,12 @@ type Trail struct {
 }
 
 func NewTrail(size uint, delim string) *Trail {
-	return &Trail{trail: make([]*NodeI, size), index: make([]int, size), len: 0, size: size, delim: delim}
+	indexes := make([]int, size)
+	var i uint
+	for i = 0; i < size; i++ {
+		indexes[i] = -1
+	}
+	return &Trail{trail: make([]*NodeI, size), index: indexes, len: 0, size: size, delim: delim}
 }
 
 func (p *Trail) GetPath(st uint, count uint, delim string) *Path {
@@ -59,8 +64,11 @@ func (p *Trail) GetLast() NodeI {
 	return *p.trail[p.len-1]
 }
 
-func (p *Trail) GetNodeAt(i int) NodeI {
+func (p *Trail) GetNodeAt(i uint) NodeI {
 	if p.len == 0 {
+		return nil
+	}
+	if i >= p.len {
 		return nil
 	}
 	return *p.trail[i]
@@ -70,8 +78,11 @@ func (p *Trail) Len() int {
 	return int(p.len)
 }
 
-func (p *Trail) GetIndexAt(i int) int {
+func (p *Trail) GetIndexAt(i uint) int {
 	if p.len == 0 {
+		return -1
+	}
+	if i >= p.len {
 		return -1
 	}
 	return p.index[i]
@@ -109,7 +120,8 @@ func (p *Trail) Pop() (NodeI, int) {
 
 func (p *Trail) String() string {
 	var sb strings.Builder
-	for i := 0; i < int(p.len); i++ {
+	var i uint
+	for i = 0; i < p.len; i++ {
 		name := p.GetNodeAt(i).GetName()
 		if name != "" {
 			sb.WriteString(p.GetNodeAt(i).GetName())
@@ -119,7 +131,7 @@ func (p *Trail) String() string {
 				sb.WriteString(fmt.Sprintf("%d", ind))
 			}
 		}
-		if i < int(p.len)-1 {
+		if i < (p.len - 1) {
 			sb.WriteString(p.GetDelim())
 		}
 	}

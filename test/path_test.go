@@ -7,6 +7,35 @@ import (
 	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
+func TestTrailGetNodeAt(t *testing.T) {
+	root := InitParser(t, "", obj3)
+	fn, _ := parser.Find(root, parser.NewDotPath("firstName"))
+	bo, _ := parser.Find(root, parser.NewDotPath("bo"))
+	trail := parser.NewTrail(4, "|")
+	if trail.GetNodeAt(0) != nil {
+		t.Errorf("TestTrailGetNodeAt:GetNodeAt(0) should be nil")
+	}
+	if trail.GetNodeAt(1) != nil {
+		t.Errorf("TestTrailGetNodeAt:GetNodeAt(1) should be nil")
+	}
+	trail.Push(fn, -1)
+	if !fn.Equal(trail.GetNodeAt(0)) {
+		t.Errorf("TestTrailGetNodeAt:GetNodeAt(0) should be firstName")
+	}
+	if trail.GetNodeAt(1) != nil {
+		t.Errorf("TestTrailGetNodeAt:GetNodeAt(1) should be nil")
+	}
+	trail.Push(bo, -1)
+	if !fn.Equal(trail.GetNodeAt(0)) {
+		t.Errorf("TestTrailGetNodeAt:GetNodeAt(0) should be 'firstName'")
+	}
+	if !bo.Equal(trail.GetNodeAt(1)) {
+		t.Errorf("TestTrailGetNodeAt:GetNodeAt(0) should be 'bo'")
+	}
+	if trail.GetNodeAt(2) != nil {
+		t.Errorf("TestTrailGetNodeAt:GetNodeAt(1) should be nil")
+	}
+}
 func TestTrailGetPath(t *testing.T) {
 	root := InitParser(t, "", obj3)
 	fn, _ := parser.Find(root, parser.NewDotPath("firstName"))
@@ -68,8 +97,8 @@ func TestTrailString(t *testing.T) {
 		t.Errorf("Empty Trail empty string")
 	}
 	trail.Push(sa, 0)
-	if trail.String() != "" {
-		t.Errorf("Empty because sa has no name")
+	if trail.String() != "0" {
+		t.Errorf("Empty because sa has no name but index is 0")
 	}
 	if trail.Len() != 1 {
 		t.Errorf("List should be 1 long")
