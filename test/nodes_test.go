@@ -435,11 +435,7 @@ func testRename(t *testing.T, root parser.NodeI, pathBefore, pathAfter, nameBefo
 		t.Errorf("failed: Found but name is wrong %s [%s] --> actual name:%s ", pathBefore, nameBefore, nb.GetName())
 		return
 	}
-	nbp, ok := parser.FindParentNode(root, nb)
-	if !ok {
-		t.Errorf("failed: Before rename. Failed to find parent of %s [%s]", pathBefore, nameBefore)
-		return
-	}
+	nbp := nb.GetParent()
 
 	if nbp.GetNodeType() == parser.NT_OBJECT {
 		nb1 := nbp.(*parser.JsonObject).GetNodeWithName(nameBefore)
@@ -490,11 +486,7 @@ func testRename(t *testing.T, root parser.NodeI, pathBefore, pathAfter, nameBefo
 		return
 	}
 
-	nap, ok := parser.FindParentNode(root, na)
-	if !ok {
-		t.Errorf("failed: After rename. Failed to find parent of %s [%s]", pathAfter, nameAfter)
-		return
-	}
+	nap := na.GetParent()
 	if nap.GetNodeType() == parser.NT_OBJECT {
 		na1 := nap.(*parser.JsonObject).GetNodeWithName(nameAfter)
 		if na1 == nil {
@@ -681,10 +673,7 @@ func TestRootListWithMapsAndLists(t *testing.T) {
 
 	root.Add(subObj1)
 
-	parent, ok := parser.FindParentNode(root, subObj1)
-	if !ok {
-		t.Errorf("FindNode error: Did not fine subObj1")
-	}
+	parent := subObj1.GetParent()
 	if parent.GetName() != root.GetName() {
 		t.Errorf("FindNode Value error: parent '%s' root %s", parent.GetName(), root.GetName())
 	}

@@ -1,8 +1,14 @@
 # jsonParser4Go
 
+**Some major refactoring is being done to simplify finding nodes and navigating the model.**
+
+**These are breaking changes so avoid using the new version.**
+
+---
+
 Json parser written in GO (Why not!)
 
-This one does not return interfaces. It returns a tree structure of different node types using maps and lists.
+It returns a tree structure of different node types using maps and lists.
 
 Each node has a specific type. It can be (cast) to a specific type and read/updated.
 
@@ -10,7 +16,7 @@ All objects returned from the API are pointer objects. This enables you to updat
 
 All String() methods return the value of the node as a String. For example for JsonNumber it returns the number as a String. For JsonBool it will return "true" of "false".
 
-```
+``` go
  \* Copyright (C) 2021 Stuart Davies (stuartdd)
  \*
  \* This program is free software: you can redistribute it and/or modify

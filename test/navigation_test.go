@@ -37,15 +37,15 @@ func TestWalkNodeTreeForTrail3(t *testing.T) {
 	rLogH("TestWalkNodeTreeForTrail3")
 	root := InitParser(t, "", obj3)
 	testWNTFP(t, root, parser.NewBarPath("address|business"), "true")
-	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|number"), "7349282382")
-	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|no"), "null")
+	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|1|number"), "7349282382")
+	testWNTFP(t, root, parser.NewBarPath("address|phoneNumbers|5|no"), "null")
 }
 
 func TestWalkNodeTreeForTrail4(t *testing.T) {
 	rLogH("TestWalkNodeTreeForTrail")
 	root := InitParser(t, "", obj4)
 	testWNTFP(t, root, parser.NewBarPath("list1|3|list3|2"), "20")
-	testWNTFP(t, root, parser.NewBarPath("list1|lastName"), "Jackson")
+	testWNTFP(t, root, parser.NewBarPath("list1|2|lastName"), "Jackson")
 	testWNTFP(t, root, parser.NewBarPath("list1|3|A"), "10")
 }
 
@@ -172,26 +172,24 @@ func TestFindNodeInList(t *testing.T) {
 	root := InitParser(t, "", nList2)
 	target, _ := parser.Find(root, parser.NewPath("4.f", "."))
 
-	p1, ok := parser.FindParentNode(root, target)
-	CheckNodeParentTarget(t, p1, target, ok, "f", true, "")
+	p1 := target.GetParent()
+	CheckNodeParentTarget(t, p1, target, "f", true, "")
 
-	p2, ok := parser.FindParentNode(root, p1)
-	CheckNodeParentTarget(t, p2, p1, ok, "", true, "")
-
-	p3, ok := parser.FindParentNode(root, p2)
-	CheckNodeParentTarget(t, p3, p2, ok, "", false, "")
+	p2 := target.GetParent()
+	CheckNodeParentTarget(t, p2, p1, "", true, "")
 
 }
 
 func TestFindNodeInListComplex(t *testing.T) {
 	root := InitParser(t, "", obj3)
-	target, _ := parser.Find(root, parser.NewBarPath("address|phoneNumbers|number"))
-	p1, ok := parser.FindParentNode(root, target)
-	CheckNodeParentTarget(t, p1, target, ok, "number", true, "phoneNumbers")
+	target, _ := parser.Find(root, parser.NewBarPath("address|phoneNumbers|1|number"))
+	p1 := target.GetParent()
+
+	CheckNodeParentTarget(t, p1, target, "number", true, "phoneNumbers")
 
 	target, _ = parser.Find(root, parser.NewDotPath("address.phoneNumbers.no"))
-	p1, ok = parser.FindParentNode(root, target)
-	CheckNodeParentTarget(t, p1, target, ok, "no", true, "phoneNumbers")
+	p1 = target.GetParent()
+	CheckNodeParentTarget(t, p1, target, "no", true, "phoneNumbers")
 
 }
 
@@ -200,19 +198,19 @@ func TestFindNodeInObjects(t *testing.T) {
 	target, _ := parser.Find(root, parser.NewPath("address.state", "."))
 	as1 := target.String()
 
-	p, ok := parser.FindParentNode(root, target)
-	CheckNodeParentTarget(t, p, target, ok, "state", true, "address")
+	p := target.GetParent()
+	CheckNodeParentTarget(t, p, target, "state", true, "address")
 	target, _ = parser.Find(root, parser.NewPath("address|phoneNumbers|0|number", "|"))
-	p, ok = parser.FindParentNode(root, target)
-	CheckNodeParentTarget(t, p, target, ok, "number", true, "")
+	p = target.GetParent()
+	CheckNodeParentTarget(t, p, target, "number", true, "")
 	target, _ = parser.Find(root, parser.NewPath("address.phoneNumbers", "."))
-	p, ok = parser.FindParentNode(root, target)
-	CheckNodeParentTarget(t, p, target, ok, "phoneNumbers", true, "address")
+	p = target.GetParent()
+	CheckNodeParentTarget(t, p, target, "phoneNumbers", true, "address")
 	target, _ = parser.Find(root, parser.NewPath("age", "."))
-	p, ok = parser.FindParentNode(root, target)
-	CheckNodeParentTarget(t, p, target, ok, "age", true, "")
-	p, ok = parser.FindParentNode(root, root)
-	CheckNodeParentTarget(t, p, root, ok, "", false, "")
+	p = target.GetParent()
+	CheckNodeParentTarget(t, p, target, "age", true, "")
+	p = target.GetParent()
+	CheckNodeParentTarget(t, p, root, "", false, "")
 
 	target = parser.NewJsonString("state", "CA")
 	as2 := target.String()
@@ -220,20 +218,14 @@ func TestFindNodeInObjects(t *testing.T) {
 	if as2 != as1 {
 		t.Errorf("Node address.state and external node address.sate string should be the same '%s' != '%s", as1, as2)
 	}
-	p, ok = parser.FindParentNode(root, target)
-	if ok {
-		t.Errorf("Just because the String() returns the same doesent make then the same!")
-	}
+	p = target.GetParent()
 	if p != nil {
 		t.Errorf("returned parent node should be nil")
 	}
 }
 
-func CheckNodeParentTarget(t *testing.T, parent, target parser.NodeI, found bool, expected string, shouldHaveParent bool, parentStr string) {
+func CheckNodeParentTarget(t *testing.T, parent, target parser.NodeI, expected string, shouldHaveParent bool, parentStr string) {
 	if shouldHaveParent {
-		if !found {
-			t.Errorf("returned node was not found. Expected '%s'", expected)
-		}
 		if parent == nil {
 			t.Errorf("Returned parent is nil, Expected: '%s'", parentStr)
 		}

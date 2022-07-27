@@ -1,86 +1,81 @@
 package test
 
 import (
-	"github.com/stuartdd2/JsonParser4go/parser"
 	"testing"
+
+	"github.com/stuartdd2/JsonParser4go/parser"
 )
 
 func TestListRemoveNodeInObjects(t *testing.T) {
 	root := InitParser(t, "", obj2)
 	n := CheckFindNode(t, root, "address.phoneNumbers", "7349282382")
-	parent, ok := parser.FindParentNode(root, n)
-	if !ok || parent == nil {
+	parent := n.GetParent()
+	if parent == nil {
 		t.Errorf("FindParentNode failed to find the node or the parent is nil")
 	}
 	if n != nil {
 		parser.Remove(root, n)
-		_, ok := parser.FindParentNode(root, n)
-		if ok {
-			t.Errorf("FindParentNode found the removed node")
+		if n.GetParent() != nil {
+			t.Errorf("Removed node still has a parent")
 		}
 	} else {
-		t.Errorf("FindParentNode failed to find the node")
+		t.Errorf("Node to remove has no parent")
 	}
 }
 
 func TestListRemoveNodeInObjectsInList(t *testing.T) {
 	root := InitParser(t, "", obj2)
 	n := CheckFindNode(t, root, "address.phoneNumbers.0.type", "home")
-	parent, ok := parser.FindParentNode(root, n)
-	if !ok || parent == nil {
+	parent := n.GetParent()
+	if parent == nil {
 		t.Errorf("FindParentNode failed to find the node or the parent is nil")
 	}
 	if n != nil {
 		parser.Remove(root, n)
-		_, ok := parser.FindParentNode(root, n)
-		if ok {
-			t.Errorf("FindParentNode found the removed node")
+		if n.GetParent() != nil {
+			t.Errorf("removed node still has parent")
 		}
 	} else {
-		t.Errorf("FindParentNode failed to find the node")
+		t.Errorf("Node to remove has no parent")
 	}
 }
 func TestListRemoveObjectInObjects(t *testing.T) {
 	root := InitParser(t, "", obj2)
 	n := CheckFindNode(t, root, "address", "\"streetAddress\": \"101\"")
-	parent, ok := parser.FindParentNode(root, n)
-	if !ok || parent == nil {
-		t.Errorf("FindParentNode failed to find the node or the parent is nil")
+	parent := n.GetParent()
+	if parent == nil {
+		t.Errorf("Node has no parent")
 	}
 	if n != nil {
 		parser.Remove(root, n)
-		_, ok := parser.FindParentNode(root, n)
-		if ok {
-			t.Errorf("FindParentNode found the removed node")
+		if n.GetParent() != nil {
+			t.Errorf("removed node still has parent")
 		}
 	} else {
-		t.Errorf("FindParentNode failed to find the node")
+		t.Errorf("Node to remove has no parent")
 	}
 }
 func TestListRemoveNodeInList(t *testing.T) {
 	//	nList1 = []byte(`["literal", {"obj":"literal"}, {"num":99.9}, {"t":true}, {"f":false}]`)
 	root := InitParser(t, "", nList1)
 	n := CheckFindNode(t, root, "obj", "literal")
-	parent, ok := parser.FindParentNode(root, n)
-	if !ok || parent == nil {
-		t.Errorf("FindParentNode failed to find the node or the parent is nil")
+	parent := n.GetParent()
+	if parent == nil {
+		t.Errorf("Node to remove has no parent")
 	}
 	if n != nil {
 		parser.Remove(root, n)
 	}
-	p, ok := parser.FindParentNode(root, n)
-	if ok {
-		t.Errorf("FindParentNode should NOT find the node")
-	}
+	p := n.GetParent()
 	if p != nil {
-		t.Errorf("FindParentNode should NOT find the node so parent should be null")
+		t.Errorf("removed node still has parent")
 	}
 	rootL := (root).(*parser.JsonList)
 	newNode := parser.NewJsonString("Fred", "Jones")
 	rootL.Add(newNode)
-	listP, ok := parser.FindParentNode(root, newNode)
-	if !ok || listP == nil {
-		t.Errorf("FindParentNode failed to find the NEW node or the parent is nil")
+	listP := newNode.GetParent()
+	if listP == nil {
+		t.Errorf("New Node should have a parent")
 	}
 }
 func TestUpdate(t *testing.T) {

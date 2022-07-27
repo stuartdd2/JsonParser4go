@@ -124,7 +124,7 @@ func ExampleFindWithPath() {
 	fmt.Println(parser.Find(root, parser.NewDotPath("address")))
 }
 
-func LoadAfJsonFile() {
+func LoadAJsonFile() {
 	if len(os.Args) < 2 {
 		abortWithUsage("Missing file name")
 	}
@@ -138,23 +138,6 @@ func LoadAfJsonFile() {
 		fmt.Printf("Failed to parse file %s. Error %s\n", filename, err.Error())
 	}
 	fmt.Println(parser.DiagnosticList(node))
-}
-
-func ExampleFindParent() {
-	root, _ := parser.Parse(json)
-	target1 := parser.NewJsonString("state", "CA")                      // This node is NOT in the root tree
-	target2, _ := parser.Find(root, parser.NewDotPath("address.state")) // This node in in the root tree. Check err!
-
-	fmt.Println(target1.String()) // Will print "state": "CA". These look the same!
-	fmt.Println(target2.String()) // Will print "state": "CA"
-
-	p2, ok2 := parser.FindParentNode(root, target2)
-	fmt.Printf("%t\n", ok2)          // will print true because target2 is in the node tree
-	fmt.Printf("%s\n", p2.GetName()) // will print the name of the parent of target2 'address':
-
-	_, ok1 := parser.FindParentNode(root, target1)
-	fmt.Printf("%t\n", ok1) // will print false because target1 is outside the node tree.
-	//	The parent is nil
 }
 
 func abortWithUsage(message string) {

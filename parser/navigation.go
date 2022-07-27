@@ -59,15 +59,6 @@ func Find(node NodeI, path *Path) (NodeI, error) {
 	return node, nil
 }
 
-func FindParentNode(root, target NodeI) (NodeI, bool) {
-	_, pn, ok := walkNodes(root, nil, target, visitFindParentNode)
-	return pn, ok
-}
-
-func visitFindParentNode(node, parent, target NodeI) bool {
-	return node == target
-}
-
 func WalkNodeTreeForTrail(root NodeC, visitWithTrail func(*Trail, int) bool) (*Trail, bool) {
 	trail := NewTrail(10, "|")
 	i := walkNodeTreeForPaths(root, trail, 0, visitWithTrail)

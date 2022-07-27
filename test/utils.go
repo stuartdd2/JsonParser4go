@@ -15,7 +15,28 @@ import (
 var (
 	nList1 = []byte(`["literal", {"obj":"literal"}, {"num":99.9}, {"t":true}, {"f":false}]`)
 	nList2 = []byte(`["literal", {"obj":"literal"}, {"num":99.9}, {"t":true}, {"f":false, "t":true}]`)
-	obj1   = []byte(`{
+
+	singleListData = []byte(`{
+		"config": {},
+		"actions": [
+			{
+				"tab": "Z:Test",
+				"name": "PWD",
+				"desc": "Text cmd only",
+				"list": [
+					{
+						"cmd": "pwd1"
+					},
+					{
+						"cmd": "pwd2",
+						"args":[]
+					}
+				]
+			}
+		]
+	}`)
+
+	obj1 = []byte(`{
 		"firstName": "Joe",
 		"lastName": "Jackson",
 		"gender": "male"

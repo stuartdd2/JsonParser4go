@@ -46,6 +46,8 @@ type NodeI interface {
 	String() string
 	JsonValue() string
 	JsonValueIndented(tab int) string
+	GetParent() NodeC
+	setParent(NodeC)
 }
 
 type NodeC interface {
@@ -72,8 +74,9 @@ var (
 // Base node (parent) interface (NodeI) and properties
 //
 type jsonParentNode struct {
-	name string
-	nt   NodeType
+	name   string
+	nt     NodeType
+	parent NodeC
 }
 
 func NewJsonParentNode(name string, nt NodeType) jsonParentNode {
@@ -86,6 +89,14 @@ func (n *jsonParentNode) GetName() string {
 
 func (n *jsonParentNode) setName(name string) {
 	n.name = name
+}
+
+func (n *jsonParentNode) GetParent() NodeC {
+	return n.parent
+}
+
+func (n *jsonParentNode) setParent(p NodeC) {
+	n.parent = p
 }
 
 func (n *jsonParentNode) GetNodeType() NodeType {
@@ -195,6 +206,7 @@ func (n *JsonObject) Add(node NodeI) (NodeI, error) {
 		return nil, fmt.Errorf("duplicate name [%s] in JsonObject container with name [%s]", node.GetName(), n.name)
 	}
 	n.value[node.GetName()] = &node
+	node.setParent(n)
 	return node, nil
 }
 
@@ -217,6 +229,7 @@ func (n *JsonObject) Remove(nodeRemove NodeI) error {
 	} else {
 		return fmt.Errorf("no matching node [%s] found in parent object node [%s]", nodeRemove.GetName(), n.name)
 	}
+	nodeRemove.setParent(nil)
 	return nil
 }
 
@@ -246,13 +259,11 @@ func (n *JsonList) GetNodeWithName(name string) NodeI {
 }
 
 func (n *JsonList) Add(node NodeI) (NodeI, error) {
-	if node.GetNodeType() == NT_OBJECT {
-		obj := node.(*JsonObject)
-		if obj.GetName() == "" && obj.Len() == 1 {
-			node = obj.GetValues()[0]
-		}
-	}
 	n.value = append(n.value, &node)
+	if node.GetParent() != nil {
+		return nil, fmt.Errorf("Node %s already has a parent.", node.GetName())
+	}
+	node.setParent(n)
 	return node, nil
 }
 
@@ -312,6 +323,7 @@ func (n *JsonList) Remove(nodeRemove NodeI) error {
 			}
 		}
 	}
+	nodeRemove.setParent(nil)
 	n.value = newList
 	return nil
 }
@@ -523,28 +535,24 @@ func CreateAndReturnNodeAtPath(root NodeI, path *Path, nodeType NodeType) (NodeI
 }
 
 func Remove(root, node NodeI) error {
-	parentNode, found := FindParentNode(root, node)
-	if found {
-		if parentNode == nil {
-			return fmt.Errorf("cannot remove node as it does not have a parent")
-		} else {
-			switch parentNode.GetNodeType() {
-			case NT_LIST:
-				err := parentNode.(*JsonList).Remove(node)
-				if err != nil {
-					return err
-				}
-			case NT_OBJECT:
-				err := parentNode.(*JsonObject).Remove(node)
-				if err != nil {
-					return err
-				}
-			default:
-				return fmt.Errorf("cannot remove node as its parent is not a container node")
-			}
-		}
+	parentNode := node.GetParent()
+	if parentNode == nil {
+		return fmt.Errorf("cannot remove node as it does not have a parent")
 	} else {
-		return fmt.Errorf("cannot remove node as it was not found in root tree")
+		switch parentNode.GetNodeType() {
+		case NT_LIST:
+			err := parentNode.(*JsonList).Remove(node)
+			if err != nil {
+				return err
+			}
+		case NT_OBJECT:
+			err := parentNode.(*JsonObject).Remove(node)
+			if err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("cannot remove node as its parent is not a container node")
+		}
 	}
 	return nil
 }
@@ -577,32 +585,28 @@ func Rename(root, node NodeI, newName string) error {
 	if node.GetName() == "" {
 		return fmt.Errorf("cannot rename. This node has no name")
 	}
-	parentNode, found := FindParentNode(root, node)
-	if found {
-		if parentNode == nil {
-			node.setName(newName)
-		} else {
-			switch parentNode.GetNodeType() {
-			case NT_LIST:
-				node.setName(newName)
-			case NT_OBJECT:
-				po := parentNode.(*JsonObject)
-				if po.GetNodeWithName(newName) != nil {
-					return fmt.Errorf("cannot rename node. Parent already has a node with the new name")
-				}
-				delete(parentNode.(*JsonObject).value, node.GetName())
-				node.setName(newName)
-				_, err := parentNode.(*JsonObject).Add(node)
-				if err != nil {
-					return err
-				}
-
-			default:
-				return fmt.Errorf("cannot rename node as its parent is not a container node")
-			}
-		}
+	parentNode := node.GetParent()
+	if parentNode == nil {
+		node.setName(newName)
 	} else {
-		return fmt.Errorf("cannot rename node as it was not found in root tree")
+		switch parentNode.GetNodeType() {
+		case NT_LIST:
+			node.setName(newName)
+		case NT_OBJECT:
+			po := parentNode.(*JsonObject)
+			if po.GetNodeWithName(newName) != nil {
+				return fmt.Errorf("cannot rename node. Parent already has a node with the new name")
+			}
+			delete(parentNode.(*JsonObject).value, node.GetName())
+			node.setName(newName)
+			_, err := parentNode.(*JsonObject).Add(node)
+			if err != nil {
+				return err
+			}
+
+		default:
+			return fmt.Errorf("cannot rename node as its parent is not a container node")
+		}
 	}
 	return nil
 }
