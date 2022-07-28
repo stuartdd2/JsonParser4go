@@ -185,10 +185,10 @@ func TestFindNodeInListComplex(t *testing.T) {
 	target, _ := parser.Find(root, parser.NewBarPath("address|phoneNumbers|1|number"))
 	p1 := target.GetParent()
 
-	CheckNodeParentTarget(t, p1, target, "number", true, "phoneNumbers")
+	CheckNodeParentTarget(t, p1, target, "number", true, "")
 
 	target, _ = parser.Find(root, parser.NewDotPath("address.phoneNumbers.no"))
-	p1 = target.GetParent()
+	p1 = target.GetParent().GetParent()
 	CheckNodeParentTarget(t, p1, target, "no", true, "phoneNumbers")
 
 }
@@ -210,7 +210,9 @@ func TestFindNodeInObjects(t *testing.T) {
 	p = target.GetParent()
 	CheckNodeParentTarget(t, p, target, "age", true, "")
 	p = target.GetParent()
-	CheckNodeParentTarget(t, p, root, "", false, "")
+	if p != root {
+		t.Errorf("Parent should be the root")
+	}
 
 	target = parser.NewJsonString("state", "CA")
 	as2 := target.String()

@@ -4,6 +4,8 @@
 
 **These are breaking changes so avoid using the new version.**
 
+Fix trailing ',' not detected.
+
 ---
 
 Json parser written in GO (Why not!)

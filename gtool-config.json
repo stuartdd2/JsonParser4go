@@ -1,0 +1,32 @@
+{
+    "config": {
+        "localValues": {
+            "PiServer": {
+                "desc": "PiServer",
+                "value": "http://192.168.1.243:8080"
+            }
+        },
+        "runAtStart": "Set GIT stuartdd2",
+        "runAtStartDelay": 100
+    },
+    "actions": [
+        {
+            "tab": "DEV",
+            "name": "TEST",
+            "desc": "Run GO test",
+            "list": [
+                {
+                    "cmd": "clear",
+                    "args": []
+                },
+                {
+                    "cmd": "go",
+                    "args": [
+                        "test"
+                    ],
+                    "path": "test"
+                }
+            ]
+        }
+    ]
+}

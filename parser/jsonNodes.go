@@ -59,6 +59,7 @@ type NodeC interface {
 	Add(node NodeI) (NodeI, error)
 	GetNodeWithName(name string) NodeI
 	Remove(nodeRemove NodeI) error
+	removeFromParent(nodeRemove NodeI) error
 }
 
 var (
@@ -222,7 +223,12 @@ func (n *JsonObject) String() string {
 	return n.JsonValue()
 }
 
+// TO DO
 func (n *JsonObject) Remove(nodeRemove NodeI) error {
+	return n.removeFromParent(nodeRemove)
+}
+
+func (n *JsonObject) removeFromParent(nodeRemove NodeI) error {
 	_, ok := n.value[nodeRemove.GetName()]
 	if ok {
 		delete(n.value, nodeRemove.GetName())
@@ -253,6 +259,14 @@ func (n *JsonList) GetNodeWithName(name string) NodeI {
 	for _, v := range n.value {
 		if (*v).GetName() != "" && (*v).GetName() == name {
 			return *v
+		} else {
+			vo, ok := (*v).(*JsonObject)
+			if ok && vo.Len() == 1 {
+				n := vo.GetNodeWithName(name)
+				if n != nil {
+					return n
+				}
+			}
 		}
 	}
 	return nil
@@ -312,6 +326,28 @@ func (n *JsonList) String() string {
 }
 
 func (n *JsonList) Remove(nodeRemove NodeI) error {
+	rp := nodeRemove.GetParent()
+	if rp == nil {
+		return fmt.Errorf("cannot remove node. Its parent is nil")
+	}
+
+	if rp == n {
+		n.removeFromParent(nodeRemove)
+		return nil
+	}
+
+	rpp := rp.GetParent()
+	if rpp == n {
+		rp.removeFromParent(nodeRemove)
+		if rp.Len() == 0 {
+			rpp.removeFromParent(rp)
+		}
+		return nil
+	}
+	return fmt.Errorf("cannot remove node. This is NOT its parent")
+}
+
+func (n *JsonList) removeFromParent(nodeRemove NodeI) error {
 	newList := make([]*NodeI, len(n.value)-1)
 	newPos := 0
 	for _, nx := range n.value {
@@ -534,27 +570,13 @@ func CreateAndReturnNodeAtPath(root NodeI, path *Path, nodeType NodeType) (NodeI
 	return ret, nil
 }
 
-func Remove(root, node NodeI) error {
+func Remove(node NodeI) error {
 	parentNode := node.GetParent()
 	if parentNode == nil {
 		return fmt.Errorf("cannot remove node as it does not have a parent")
 	} else {
-		switch parentNode.GetNodeType() {
-		case NT_LIST:
-			err := parentNode.(*JsonList).Remove(node)
-			if err != nil {
-				return err
-			}
-		case NT_OBJECT:
-			err := parentNode.(*JsonObject).Remove(node)
-			if err != nil {
-				return err
-			}
-		default:
-			return fmt.Errorf("cannot remove node as its parent is not a container node")
-		}
+		return parentNode.Remove(node)
 	}
-	return nil
 }
 
 func Clone(n NodeI, newName string, cloneLeafNodeData bool) NodeI {
@@ -581,7 +603,7 @@ func Clone(n NodeI, newName string, cloneLeafNodeData bool) NodeI {
 	}
 }
 
-func Rename(root, node NodeI, newName string) error {
+func Rename(node NodeI, newName string) error {
 	if node.GetName() == "" {
 		return fmt.Errorf("cannot rename. This node has no name")
 	}
@@ -599,7 +621,7 @@ func Rename(root, node NodeI, newName string) error {
 			}
 			delete(parentNode.(*JsonObject).value, node.GetName())
 			node.setName(newName)
-			_, err := parentNode.(*JsonObject).Add(node)
+			_, err := po.Add(node)
 			if err != nil {
 				return err
 			}

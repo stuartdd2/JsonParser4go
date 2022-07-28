@@ -151,15 +151,29 @@ func TestRemoveFromObject(t *testing.T) {
 		t.Errorf("failed: to find address: %s", err.Error())
 		return
 	}
+
 	city, err := parser.Find(root, parser.NewDotPath("address.city"))
 	if err != nil {
 		t.Errorf("failed: to find address: %s", err.Error())
 		return
 	}
-	address.(*parser.JsonObject).Remove(city)
+
+	parser.Remove(city)
 	_, err = parser.Find(root, parser.NewDotPath("address.city"))
 	if err == nil {
-		t.Errorf("failed: to remove address.city: %s", err.Error())
+		t.Errorf("Found deleted node: %s", err.Error())
+		return
+	}
+
+	phoneNumbers, err := parser.Find(root, parser.NewDotPath("address.phoneNumbers"))
+	if err != nil {
+		t.Errorf("failed: to find phoneNumbers: %s", err.Error())
+		return
+	}
+	address.(*parser.JsonObject).Remove(phoneNumbers)
+	_, err = parser.Find(root, parser.NewDotPath("address.phoneNumbers"))
+	if err == nil {
+		t.Errorf("failed: to remove phoneNumbers.city: %s", err.Error())
 		return
 	}
 }
@@ -421,7 +435,6 @@ func TestObjectRename(t *testing.T) {
 	testRename(t, root, "address.phoneNumbers.bool", "address.phoneNumbers.boolean", "bool", "boolean", "", false)
 
 	testRename(t, root, "address.phoneNumbers.number", "address.phoneNumbers.boolean", "number", "boolean", "", true)
-	testRename(t, root, "address.phoneNumbers.no", "address.phoneNumbers.dupe1", "no", "dupe1", "", true)
 
 }
 
@@ -459,7 +472,7 @@ func testRename(t *testing.T, root parser.NodeI, pathBefore, pathAfter, nameBefo
 		}
 	}
 
-	err = parser.Rename(root, nb, nameAfter)
+	err = parser.Rename(nb, nameAfter)
 	if failContains != "" {
 		if err == nil {
 			t.Errorf("failed: Rename did not return an error")
@@ -677,7 +690,7 @@ func TestRootListWithMapsAndLists(t *testing.T) {
 	if parent.GetName() != root.GetName() {
 		t.Errorf("FindNode Value error: parent '%s' root %s", parent.GetName(), root.GetName())
 	}
-	parser.Rename(root, subObj1, "BLUE")
+	parser.Rename(subObj1, "BLUE")
 	l := strings.Split(string(testRootListWithMapsAndLists), "|")
 	s := root.JsonValue()
 	for _, ts := range l {

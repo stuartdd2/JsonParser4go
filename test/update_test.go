@@ -14,7 +14,7 @@ func TestListRemoveNodeInObjects(t *testing.T) {
 		t.Errorf("FindParentNode failed to find the node or the parent is nil")
 	}
 	if n != nil {
-		parser.Remove(root, n)
+		parser.Remove(n)
 		if n.GetParent() != nil {
 			t.Errorf("Removed node still has a parent")
 		}
@@ -31,7 +31,7 @@ func TestListRemoveNodeInObjectsInList(t *testing.T) {
 		t.Errorf("FindParentNode failed to find the node or the parent is nil")
 	}
 	if n != nil {
-		parser.Remove(root, n)
+		parser.Remove(n)
 		if n.GetParent() != nil {
 			t.Errorf("removed node still has parent")
 		}
@@ -47,7 +47,7 @@ func TestListRemoveObjectInObjects(t *testing.T) {
 		t.Errorf("Node has no parent")
 	}
 	if n != nil {
-		parser.Remove(root, n)
+		parser.Remove(n)
 		if n.GetParent() != nil {
 			t.Errorf("removed node still has parent")
 		}
@@ -64,7 +64,7 @@ func TestListRemoveNodeInList(t *testing.T) {
 		t.Errorf("Node to remove has no parent")
 	}
 	if n != nil {
-		parser.Remove(root, n)
+		parser.Remove(n)
 	}
 	p := n.GetParent()
 	if p != nil {

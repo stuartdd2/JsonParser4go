@@ -19,6 +19,9 @@ func TestEqualWithParse(t *testing.T) {
 	if !na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
+	if na == nb {
+		t.Errorf("failed: Object '%s' should not be '%s'", na.JsonValue(), nb.JsonValue())
+	}
 	naState, err := parser.Find(na, parser.NewDotPath("address.state"))
 	if err != nil {
 		t.Errorf("Failed to find 'state' in na")
@@ -35,11 +38,11 @@ func TestEqualWithParse(t *testing.T) {
 	if !na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
-	naPn, err := parser.Find(na, parser.NewDotPath("address.phoneNumbers.1"))
+	naPn, err := parser.Find(na, parser.NewDotPath("address.phoneNumbers.number"))
 	if err != nil {
 		t.Errorf("Failed to find 'address.phoneNumbers[1]' in na. err:%s", err)
 	}
-	nbPn, err := parser.Find(nb, parser.NewDotPath("address.phoneNumbers.1"))
+	nbPn, err := parser.Find(nb, parser.NewDotPath("address.phoneNumbers.number"))
 	if err != nil {
 		t.Errorf("Failed to find 'address.phoneNumbers[1]' in nb. err:%s", err)
 	}
@@ -51,11 +54,11 @@ func TestEqualWithParse(t *testing.T) {
 	if !na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
-	parser.Remove(na, naPn)
+	parser.Remove(naPn)
 	if na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should NOT equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
-	parser.Remove(nb, nbPn)
+	parser.Remove(nbPn)
 	if !na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
@@ -86,11 +89,11 @@ func TestEqualObject(t *testing.T) {
 	if !na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
-	parser.Rename(na, l1a, "l2")
+	parser.Rename(l1a, "l2")
 	if na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should NOT equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
-	parser.Rename(na, l1a, "l1")
+	parser.Rename(l1a, "l1")
 	if !na.Equal(nb) {
 		t.Errorf("failed: Object '%s' should equal Object '%s'", na.JsonValue(), nb.JsonValue())
 	}
@@ -168,8 +171,8 @@ func TestEqualList(t *testing.T) {
 	if na.Equal(nb) {
 		t.Errorf("failed: List '%s' should NOT equal List '%s'", na.JsonValue(), nb.JsonValue())
 	}
-	parser.Rename(nb, ob2, "ob 3")
-	parser.Rename(nb, ob3, "ob 2")
+	parser.Rename(ob2, "ob 3")
+	parser.Rename(ob3, "ob 2")
 	if !na.Equal(nb) {
 		t.Errorf("failed: List '%s' should equal List '%s'", na.JsonValue(), nb.JsonValue())
 	}
