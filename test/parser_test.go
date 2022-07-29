@@ -9,9 +9,31 @@ import (
 )
 
 var (
-	sample4 = []byte(`{"age": 28,"number": "7349282382","firstName": "Joe","lastName": "Jackson","gender": "male"}`)
-	sample5 = []byte(`[{"age": 28},{"number": "7349282382"},"firstName"]`)
+	sample4     = []byte(`{"age": 28,"number": "7349282382","firstName": "Joe","lastName": "Jackson","gender": "male"}`)
+	sample5     = []byte(`[{"age": 28},{"number": "7349282382"},"firstName"]`)
+	badCommaObj = []byte(`{
+		"config": {
+			"password1": {"ace": true,"pwe": true,}
+		}
+	}`)
+	badCommaArray = []byte(`{
+		"config": {
+			"password1": ["ace","pwe",]
+		}
+	}`)
 )
+
+func TestParserBadComma(t *testing.T) {
+	x, err := parser.Parse(badCommaObj)
+	if err == nil {
+		t.Errorf("Error: Should fail %s", x)
+	}
+	y, err := parser.Parse(badCommaArray)
+	if err == nil {
+		t.Errorf("Error: Should fail %s", y)
+	}
+	// t.Errorf("Error: %s", err)
+}
 
 func TestParserSample5(t *testing.T) {
 	n, err := parser.Parse(sample5)

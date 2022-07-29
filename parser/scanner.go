@@ -24,7 +24,7 @@ import (
 
 type Token struct {
 	text string
-	len  int
+	pos  int
 	tok  TokenType
 }
 
@@ -99,56 +99,63 @@ func (s *Scanner) Reset() *Scanner {
 	s.pos = 0
 	return s
 }
+func (s *Scanner) PeekToken() *Token {
+	p := s.pos
+	t := s.NextToken()
+	s.pos = p
+	return t
+}
 
 func (s *Scanner) NextToken() *Token {
 	s.SkipSpace()
+	p := s.pos
 	if s.HasNext() {
 		c := s.Next()
 		if c == '{' {
-			return NewToken("", TT_OBJECT_OPEN)
+			return NewToken("", p, TT_OBJECT_OPEN)
 		}
 		if c == '}' {
-			return NewToken("", TT_OBJECT_CLOSE)
+			return NewToken("", p, TT_OBJECT_CLOSE)
 		}
 		if c == ',' {
-			return NewToken("", TT_COMMA)
+			return NewToken("", p, TT_COMMA)
 		}
 		if c == ':' {
-			return NewToken("", TT_COLON)
+			return NewToken("", p, TT_COLON)
 		}
 		if c == '"' {
-			return NewToken(s.scanQuotedString(c), TT_QUOTED_STRING)
+			return NewToken(s.scanQuotedString(c), p, TT_QUOTED_STRING)
 		}
 		if c == '[' {
-			return NewToken("", TT_ARRAY_OPEN)
+			return NewToken("", p, TT_ARRAY_OPEN)
 		}
 		if c == ']' {
-			return NewToken("", TT_ARRAY_CLOSE)
+			return NewToken("", p, TT_ARRAY_CLOSE)
 		}
 		if c == 't' {
 			i := s.skipValueWithMask(TRUE_C)
 			if i != 4 {
 				panic(fmt.Sprintf("Boolean 'true' Must be 4 chars long starting with 't' containing 'r' 'u' and 'e'. %s", s.Diag("")))
 			}
-			return NewToken("true", TT_BOOL_TRUE)
+			return NewToken("true", p, TT_BOOL_TRUE)
 		}
 		if c == 'f' {
 			i := s.skipValueWithMask(FALSE_C)
 			if i != 5 {
 				panic(fmt.Sprintf("Boolean 'false' Must be 5 chars long starting with 'f' containing 'a' 'l' 's' and 'e'. %s", s.Diag("")))
 			}
-			return NewToken("false", TT_BOOL_FALSE)
+			return NewToken("false", p, TT_BOOL_FALSE)
 		}
 		if c == 'n' {
 			i := s.skipValueWithMask(NULL_C)
 			if i != 4 {
 				panic(fmt.Sprintf("'null' Must be 4 chars long starting with 'n' containing 'a' 'l' 's' and 'e'. %s", s.Diag("")))
 			}
-			return NewToken("null", TT_NULL)
+			return NewToken("null", p, TT_NULL)
 		}
 		if CharIsAny(c, NUM) {
 			s.Back()
-			return NewToken(s.scanValueWithMask(NUM), TT_NUMBER)
+			return NewToken(s.scanValueWithMask(NUM), p, TT_NUMBER)
 		}
 		panic(fmt.Sprintf("unrecognised token. '%c'. %s", rune(c), s.Diag(" ")))
 	}
@@ -287,8 +294,8 @@ func (s *Scanner) scanValueWithMask(mask uint16) string {
 // -------------------------------------------------------------
 // Token logic
 // -------------------------------------------------------------
-func NewToken(txt string, tokenType TokenType) *Token {
-	return &Token{text: txt, len: 1, tok: tokenType}
+func NewToken(txt string, pos int, tokenType TokenType) *Token {
+	return &Token{text: txt, pos: pos, tok: tokenType}
 }
 
 func (t *Token) GetStringValue() string {

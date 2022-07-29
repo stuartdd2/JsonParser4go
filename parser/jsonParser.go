@@ -93,7 +93,13 @@ func parseObject(sc *Scanner, name string) NodeC {
 		}
 		if !toc.IsComma() {
 			panic(fmt.Sprintf("expected a ',' seperator. Found '%s'. %s ", toc.GetStringValue(), sc.Diag(toc.GetStringValue())))
+		} else {
+			toc = sc.PeekToken()
+			if toc.IsObjectClose() || toc.IsArrayClose() {
+				panic(fmt.Sprintf("found a ',' seperator before an Object or Array close '%s'. %s ", toc.GetStringValue(), sc.Diag(toc.GetStringValue())))
+			}
 		}
+
 	}
 }
 
@@ -126,6 +132,11 @@ func parseList(sc *Scanner, name string) NodeC {
 		}
 		if !toc.IsComma() {
 			panic(fmt.Sprintf("expected a ',' seperator. Found '%s'. %s ", toc.GetStringValue(), sc.Diag(toc.GetStringValue())))
+		} else {
+			toc = sc.PeekToken()
+			if toc.IsObjectClose() || toc.IsArrayClose() {
+				panic(fmt.Sprintf("found a ',' seperator before an Object or Array close '%s'. %s ", toc.GetStringValue(), sc.Diag(toc.GetStringValue())))
+			}
 		}
 	}
 }
