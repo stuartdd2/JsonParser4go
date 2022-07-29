@@ -4,8 +4,6 @@
 
 **These are breaking changes so avoid using the new version.**
 
-Fix trailing ',' not detected.
-
 ---
 
 Json parser written in GO (Why not!)
@@ -35,13 +33,11 @@ All String() methods return the value of the node as a String. For example for J
  \* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
 
-#### To-Do
+## To-Do
 
 - Parse from a stream
 
 - Profile (see how fast it is compared to other parsers)
-
-
 
 ### Import to your project
 
@@ -59,15 +55,15 @@ go get: added github.com/stuartdd2/JsonParser4go/parser v0.0.0-20210923131243-67
 
 The go.mod file for you project should now have the parser in the require section. For example:
 
-```
+``` json
 require (
-	github.com/stuartdd2/JsonParser4go/parser v0.0.0-20210923131243-6710c9cdd57d // indirect
+    github.com/stuartdd2/JsonParser4go/parser v0.0.0-20210923131243-6710c9cdd57d // indirect
 )
 ```
 
 To remove it:
 
-```
+``` bash
 go get github.com/stuartdd2/JsonParser4go/parser@none
 ```
 
@@ -93,11 +89,11 @@ rootNode, err := parser.Parse([]byte(`["literal", 1234, true]`))
 ```go
 dat, err := os.ReadFile(filename)
 if err != nil {
-	fmt.Printf("Failed to read file %s. Error %s\n", filename, err.Error())
+    fmt.Printf("Failed to read file %s. Error %s\n", filename, err.Error())
 }
 rootNode, err = parser.Parse(dat)
 if err != nil {
-	fmt.Printf("Failed to parse file %s. Error %s\n", filename, err.Error())
+    fmt.Printf("Failed to parse file %s. Error %s\n", filename, err.Error())
 }
 ```
 
@@ -106,14 +102,14 @@ if err != nil {
 ```go
 n, err := parser.GetJsonParsed("http://n.n.n.n/files/temp.txt")
 if err != nil {
-	panic(err.Error())
+    panic(err.Error())
 }
 
 fmt.Println(n.JsonValueIndented(4))
 
 _, err = parser.PostJsonValueIndented(4, "http://n.n.n.n/files/temp2.txt", n)
 if err != nil {
-	panic(err.Error())
+    panic(err.Error())
 }
 ```
 
@@ -203,21 +199,21 @@ The JsonObject node implements the NodeC interface
 Example: Accessing nodes and their specific data access functions
 
 ```go
-	name := node.GetName() // Get the node name on ANY node
-	switch node.GetNodeType() { // Get the node type and evaluate with a switch statement
-	case parser.NT_OBJECT:
+    name := node.GetName() // Get the node name on ANY node
+    switch node.GetNodeType() { // Get the node type and evaluate with a switch statement
+    case parser.NT_OBJECT:
         objectsNode := (node.(*parser.JsonObjects)) // Cast a node to a JsonObject
         sortedKeys := objectsNode.GetSortedKeys() // Call specific function on the node
-	case parser.NT_LIST:
+    case parser.NT_LIST:
         listNode := (node.(*parser.JsonList)) // Cast a node to a JsonList
         count = listNode.Len() // Call specific function on the object node
-	case parser.NT_NUMBER:
+    case parser.NT_NUMBER:
         numberNode := (node.(*parser.JsonNumber)) // Cast a node to a JsonNumber
         floafValue := numberNode.GetValue() // Now we can access the specific functions
         intValue := numberNode.GetIntValue()
-	case parser.NT_STRING:
+    case parser.NT_STRING:
         stringValue := (node.(*parser.JsonString)).GetValue() // Get the string value
-	case parser.NT_BOOL:
+    case parser.NT_BOOL:
         boolValue := (node.(*parser.JsonBool)).GetValue() // Get the boolean value
     }
 ```
@@ -247,7 +243,7 @@ All Node Types have the 'NodeI' interface. This interface defines the following 
 | GetNodeWithName(name string) NodeI | Returns a node with a given name in the container. Note that lists can contain nodes that do not have names. These cannot be returned from this function. |
 | Remove(nodeRemove NodeI) error     | Remove the node from the container node                                                                                                                   |
 
-#### Example output indented by 4 spaces: ```JsonValueIndented(4) ```
+#### Example output indented by 4 spaces: ```JsonValueIndented(4)```
 
 ```json
 {
@@ -326,16 +322,11 @@ This example path could be used to find a node 'c' in a container node 'b' in a 
 
 This example path could be used to find a node 'c' in a container node 'b' in a root container node 'a'. The '.' separator for the paths is defined by the second parameter 'delim'.
 
-
-
 | Function                          | description                                                                                                                                                                                                                                                                                                                                | Example                                                                      |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
 | NewPath(path, delim string) *Path | Returns a path defined by as string and a delimeter. The example path could be used to find a node 'c' in a container 'b' in a root container 'a'. Note the '.' separator for the paths is defined by the second parameter 'delim'. Both of the examples are equivalent unless there is a node with the name 'a.b'. See the third example. | p:=NewPath("a.b.c",".") p:=NewPath("a\|b\|c","\|") p:=NewPath("a.b\|c","\|") |
 |                                   |                                                                                                                                                                                                                                                                                                                                            |                                                                              |
 |                                   |                                                                                                                                                                                                                                                                                                                                            |                                                                              |
-
-
-
 These functions are stand alone utilities:
 
 These function do NOT include the Structure creation functions such as ```NewJsonString(name string, value string)```. These are already covered above.
@@ -372,35 +363,35 @@ Given the following json:
 
 ```go
 json = []byte(`{
-		"firstName": "Joe",
-		"lastName": "Jackson",
-		"gender": "male",
-		"age": 28,
-		"address": {
-			"streetAddress": "101",
-			"city": "San Diego",
-			"state": "CA",
-			"business": true,
-			"phoneNumbers": [{"type": "home"}, {"number": "7349282382"} {""}]
-		}
-	 }`)
+        "firstName": "Joe",
+        "lastName": "Jackson",
+        "gender": "male",
+        "age": 28,
+        "address": {
+            "streetAddress": "101",
+            "city": "San Diego",
+            "state": "CA",
+            "business": true,
+            "phoneNumbers": [{"type": "home"}, {"number": "7349282382"} {""}]
+        }
+     }`)
 ```
 
 Example: Find the address phone number.
 
 ```go
 func ExampleFindWithPath() {
-	root, err := parser.Parse(json)
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Println(parser.Find(root, parser.NewDotPath("address.phoneNumbers.number")))    // Will find single value named nodes
-	fmt.Println(parser.Find(root, parser.NewDotPath("address.phoneNumbers.0")))         // The first node
-	fmt.Println(parser.Find(root, parser.NewDotPath("address.phoneNumbers.1")))         // The 2nd node
-	fmt.Println(parser.Find(root, parser.NewDotPath("address.phoneNumbers.2.current"))) // The third node 'current'
+    root, err := parser.Parse(json)
+    if err != nil {
+        panic(err.Error())
+    }
+    fmt.Println(parser.Find(root, parser.NewDotPath("address.phoneNumbers.number")))    // Will find single value named nodes
+    fmt.Println(parser.Find(root, parser.NewDotPath("address.phoneNumbers.0")))         // The first node
+    fmt.Println(parser.Find(root, parser.NewDotPath("address.phoneNumbers.1")))         // The 2nd node
+    fmt.Println(parser.Find(root, parser.NewDotPath("address.phoneNumbers.2.current"))) // The third node 'current'
 
-	fmt.Println(parser.Find(root, parser.NewDotPath("address.city")))
-	fmt.Println(parser.Find(root, parser.NewDotPath("address")))
+    fmt.Println(parser.Find(root, parser.NewDotPath("address.city")))
+    fmt.Println(parser.Find(root, parser.NewDotPath("address")))
 }
 OUTPUT: (note the <nil> is printed bacause the error is nil)
 7349282382 <nil>
@@ -448,20 +439,20 @@ Given the above JSON (obj2)
 
 ```go
 func ExampleFindParent() {
-	root, _ := parser.Parse(json)
-	target1 := parser.NewJsonString("state", "CA")                      // This node is NOT in the root tree
-	target2, _ := parser.Find(root, parser.NewDotPath("address.state")) // This node in in the root tree. Check err!
+    root, _ := parser.Parse(json)
+    target1 := parser.NewJsonString("state", "CA")                      // This node is NOT in the root tree
+    target2, _ := parser.Find(root, parser.NewDotPath("address.state")) // This node in in the root tree. Check err!
 
-	fmt.Println(target1.String()) // Will print "state": "CA". These look the same!
-	fmt.Println(target2.String()) // Will print "state": "CA"
+    fmt.Println(target1.String()) // Will print "state": "CA". These look the same!
+    fmt.Println(target2.String()) // Will print "state": "CA"
 
-	p2, ok2 := parser.FindParentNode(root, target2)
-	fmt.Printf("%t\n", ok2)          // will print true because target2 is in the node tree
-	fmt.Printf("%s\n", p2.GetName()) // will print the name of the parent of target2 'address':
+    p2, ok2 := parser.FindParentNode(root, target2)
+    fmt.Printf("%t\n", ok2)          // will print true because target2 is in the node tree
+    fmt.Printf("%s\n", p2.GetName()) // will print the name of the parent of target2 'address':
 
-	_, ok1 := parser.FindParentNode(root, target1)
-	fmt.Printf("%t\n", ok1) // will print false because target1 is outside the node tree.
-	//	The parent is nil
+    _, ok1 := parser.FindParentNode(root, target1)
+    fmt.Printf("%t\n", ok1) // will print false because target1 is outside the node tree.
+    //  The parent is nil
 }
 ```
 
@@ -471,16 +462,16 @@ Walking the tree enables your logic to be applied to EVERY node in the tree. For
 
 ```go
 func ExampleWalkNodeTree() {
-	root, err := parser.Parse(json)
-	if err != nil {
-		panic(err.Error())
-	}
-	parser.WalkNodeTree(root, nil, func(n, p, t parser.NodeI) bool {
-		if n.GetName() != "" { // If the node has a name
-			fmt.Printf("%s,", n.GetName()) // Print the node name
-		}
-		return false // Continue until the end!
-	})
+    root, err := parser.Parse(json)
+    if err != nil {
+        panic(err.Error())
+    }
+    parser.WalkNodeTree(root, nil, func(n, p, t parser.NodeI) bool {
+        if n.GetName() != "" { // If the node has a name
+            fmt.Printf("%s,", n.GetName()) // Print the node name
+        }
+        return false // Continue until the end!
+    })
 }
 OUTPUT:
 firstName,lastName,gender,age,address,streetAddress,city,state,business,phoneNumbers,type,number,current,loc,
@@ -488,19 +479,19 @@ firstName,lastName,gender,age,address,streetAddress,city,state,business,phoneNum
 
 If you require to return at a specific node then pass in the target and return true when the conditions are met.
 
-```
+``` go
 func ExampleWalkNodeTreeUntilConditionMet() {
-	root, err := parser.Parse(json)
-	if err != nil {
-		panic(err.Error())
-	}
-	n, p, ok := parser.WalkNodeTree(root, nil, func(n, p, t parser.NodeI) bool {
-		return n.String() == "CA"
-	})
-	if ok {
-		fmt.Printf("Node   Name: %s\n", n.GetName()) // Print the node with the value 'CA'
-		fmt.Printf("Parent Name: %s\n", p.GetName()) // Print the parent of the node with the value 'CA'
-	}
+    root, err := parser.Parse(json)
+    if err != nil {
+        panic(err.Error())
+    }
+    n, p, ok := parser.WalkNodeTree(root, nil, func(n, p, t parser.NodeI) bool {
+        return n.String() == "CA"
+    })
+    if ok {
+        fmt.Printf("Node   Name: %s\n", n.GetName()) // Print the node with the value 'CA'
+        fmt.Printf("Parent Name: %s\n", p.GetName()) // Print the parent of the node with the value 'CA'
+    }
 }
 OUTPUT:
 Node   Name:state
@@ -511,21 +502,21 @@ If you pass a target in you can use that to meet the criteria.
 
 ```go
 func ExampleWalkNodeTreeUntilTarget() {
-	root, err := parser.Parse(json)
-	if err != nil {
-		panic(err.Error())
-	}
-	target, err := parser.Find(root, "address.city")
-	if err != nil {
-		panic("Target not found")
-	}
-	n, p, ok := parser.WalkNodeTree(root, target, func(n, p, t parser.NodeI) bool {
-		return n == t // If the node equals the target this returns true!
-	})
-	if ok {
-		fmt.Printf("Node   Name: %s\n", n.GetName()) // Print the node with the value 'CA'
-		fmt.Printf("Parent Name: %s\n", p.GetName()) // Print the parent of the node with the value 'CA'
-	}
+    root, err := parser.Parse(json)
+    if err != nil {
+        panic(err.Error())
+    }
+    target, err := parser.Find(root, "address.city")
+    if err != nil {
+        panic("Target not found")
+    }
+    n, p, ok := parser.WalkNodeTree(root, target, func(n, p, t parser.NodeI) bool {
+        return n == t // If the node equals the target this returns true!
+    })
+    if ok {
+        fmt.Printf("Node   Name: %s\n", n.GetName()) // Print the node with the value 'CA'
+        fmt.Printf("Parent Name: %s\n", p.GetName()) // Print the parent of the node with the value 'CA'
+    }
 }
 OUTPUT:
 Node   Name: city
@@ -562,4 +553,3 @@ OBJECT: N:''
 ```
 
 This shows what type of node each node in the tree is. It also shows its name (N) and its value (V).
-

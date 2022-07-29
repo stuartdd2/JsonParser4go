@@ -22,7 +22,8 @@
                 {
                     "cmd": "go",
                     "args": [
-                        "test"
+                        "test",
+                        "-v"
                     ],
                     "path": "test"
                 }

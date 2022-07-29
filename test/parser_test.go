@@ -21,6 +21,11 @@ var (
 			"password1": ["ace","pwe",]
 		}
 	}`)
+	badComma = []byte(`{
+		"config": {
+			"password1": ["ace",,"pwe"]
+		}
+	}`)
 )
 
 func TestParserBadComma(t *testing.T) {
@@ -28,11 +33,25 @@ func TestParserBadComma(t *testing.T) {
 	if err == nil {
 		t.Errorf("Error: Should fail %s", x)
 	}
+	m := "found an invalid ','"
+	if !strings.Contains(err.Error(), m) {
+		t.Errorf("Error: Should contain \"%s\", actual:%s", m, err)
+	}
 	y, err := parser.Parse(badCommaArray)
 	if err == nil {
 		t.Errorf("Error: Should fail %s", y)
 	}
-	// t.Errorf("Error: %s", err)
+	if !strings.Contains(err.Error(), m) {
+		t.Errorf("Error: Should contain \"%s\", actual:%s", m, err)
+	}
+	m = "unrecognised token ','"
+	z, err := parser.Parse(badComma)
+	if err == nil {
+		t.Errorf("Error: Should fail %s", z)
+	}
+	if !strings.Contains(err.Error(), m) {
+		t.Errorf("Error: Should contain \"%s\", actual:%s", m, err)
+	}
 }
 
 func TestParserSample5(t *testing.T) {
@@ -72,10 +91,11 @@ func TestParserWithObjects(t *testing.T) {
 }
 
 func TestParserWithListWithObjects(t *testing.T) {
-	_, err := parser.Parse([]byte(`["literal", {"obj":"literal"}, {"num":99.9}, {"t":true}, {"f":false}]`))
+	n, err := parser.Parse([]byte(`["literal", {"obj":"literal"}, {"num":99.9}, {"t":true}, {"f":false}]`))
 	if err != nil {
 		t.Errorf("Error: %s", err.Error())
 	}
+	t.Log(parser.DiagnosticList(n))
 }
 
 func TestParserWithEmptyList(t *testing.T) {

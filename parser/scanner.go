@@ -112,25 +112,25 @@ func (s *Scanner) NextToken() *Token {
 	if s.HasNext() {
 		c := s.Next()
 		if c == '{' {
-			return NewToken("", p, TT_OBJECT_OPEN)
+			return NewToken(string(c), p, TT_OBJECT_OPEN)
 		}
 		if c == '}' {
-			return NewToken("", p, TT_OBJECT_CLOSE)
+			return NewToken(string(c), p, TT_OBJECT_CLOSE)
 		}
 		if c == ',' {
-			return NewToken("", p, TT_COMMA)
+			return NewToken(string(c), p, TT_COMMA)
 		}
 		if c == ':' {
-			return NewToken("", p, TT_COLON)
+			return NewToken(string(c), p, TT_COLON)
 		}
 		if c == '"' {
 			return NewToken(s.scanQuotedString(c), p, TT_QUOTED_STRING)
 		}
 		if c == '[' {
-			return NewToken("", p, TT_ARRAY_OPEN)
+			return NewToken(string(c), p, TT_ARRAY_OPEN)
 		}
 		if c == ']' {
-			return NewToken("", p, TT_ARRAY_CLOSE)
+			return NewToken(string(c), p, TT_ARRAY_CLOSE)
 		}
 		if c == 't' {
 			i := s.skipValueWithMask(TRUE_C)
